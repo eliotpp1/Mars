@@ -1,21 +1,18 @@
-import { useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import Rocket3D from "./components/Rocket3D";
+import GameStartPage from "./components/GetStartGame";
 
 function App() {
-  const rocketRef = useRef();
-
   return (
-    <div className="w-screen h-screen relative">
-      <button onClick={() => rocketRef.current?.launchRocket()} className="">
-        🚀 Lancer la fusée
-      </button>
-
-      <Canvas camera={{ position: [0, 3, 5] }}>
-        <ambientLight intensity={0.5} />
+    <div>
+      <GameStartPage />
+      <Canvas
+        // style={{ width: "100vw", height: "100vh" }}
+        camera={{ position: [3, 0, 0] }}
+      >
+        <ambientLight intensity={2} />
         <pointLight position={[10, 10, 10]} />
-        <Rocket3D ref={rocketRef} />
+
         <OrbitControls />
       </Canvas>
     </div>

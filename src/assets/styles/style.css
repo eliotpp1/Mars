@@ -1,0 +1,127 @@
+:root {
+  --primary-color: #4caf50;
+  --primary-hover: #45a049;
+  --secondary-color: #ffc107;
+  --secondary-hover: #ffa000;
+  --background-start: #1a365d;
+  --background-end: #2563eb;
+  --white-transparent: rgba(255, 255, 255, 0.1);
+  --transition-speed: 300ms;
+  --border-radius-small: 8px;
+  --border-radius-large: 16px;
+  --border-radius-full: 9999px;
+  --spacing-small: 8px;
+  --spacing-medium: 16px;
+  --spacing-large: 24px;
+}
+
+/* Classes de layout */
+.game-container {
+  min-height: 100vh;
+  background: linear-gradient(
+    to bottom,
+    var(--background-start),
+    var(--background-end)
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-medium);
+  position: relative;
+}
+
+/* Classes de boutons */
+.button {
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all var(--transition-speed);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-small);
+  padding: var(--spacing-medium);
+  color: white;
+}
+
+.button:hover {
+  transform: scale(1.05);
+}
+
+.button-primary {
+  background-color: var(--primary-color);
+  border-radius: var(--border-radius-full);
+  padding: var(--spacing-medium) var(--spacing-large);
+  font-size: 1.25rem;
+}
+
+.button-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.button-secondary {
+  background-color: var(--secondary-color);
+  border-radius: var(--border-radius-full);
+}
+
+.button-secondary:hover {
+  background-color: var(--secondary-hover);
+}
+
+.button-circular {
+  background-color: var(--white-transparent);
+  border-radius: var(--border-radius-full);
+  padding: var(--spacing-medium);
+}
+
+.button-circular:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Classes de positionnement */
+.shop-button {
+  position: absolute;
+  top: var(--spacing-medium);
+  right: var(--spacing-medium);
+}
+
+/* Classes de contenu */
+.vehicle-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-large);
+  margin-bottom: var(--spacing-large);
+}
+
+.vehicle-display {
+  width: 400px;
+  height: 400px;
+  background-color: var(--white-transparent);
+  border-radius: var(--border-radius-large);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vehicle-display canvas {
+  border-radius: 20px; /* Arrondi les coins du canvas */
+  display: block;
+}
+
+.vehicle-name {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .vehicle-display {
+    width: 300px;
+    height: 300px;
+  }
+
+  .vehicle-selector {
+    gap: var(--spacing-medium);
+  }
+}
