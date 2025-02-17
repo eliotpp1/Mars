@@ -1,11 +1,19 @@
 import { useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 
-export default function Herbe() {
+export default function Herbe({ position, rotation, scale }) {
   const grassRef = useRef();
   const { scene } = useGLTF("/assets/models/herbe.glb");
 
-  return <primitive ref={grassRef} object={scene} position={[0, -0.6, 0]} />;
+  return (
+    <primitive
+      ref={grassRef}
+      object={scene.clone()} // Clonez le modèle pour chaque instance
+      position={position}
+      rotation={rotation}
+      scale={scale}
+    />
+  );
 }
 
-useGLTF.preload("/models/herbe.glb");
+useGLTF.preload("/assets/models/herbe.glb");
