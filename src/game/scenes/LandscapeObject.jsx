@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+
 // Création du terrain
 export const createTerrain = () => {
   const geometry = new THREE.PlaneGeometry(200, 200, 30, 30);
@@ -27,41 +28,40 @@ export const createTerrain = () => {
   return terrain;
 };
 
-// Création d'un arbre
 const createTree = (x, z) => {
+  // Tronc
   const trunkGeo = new THREE.CylinderGeometry(0.5, 0.7, 5, 8);
   const trunkMat = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
   const trunk = new THREE.Mesh(trunkGeo, trunkMat);
-  trunk.position.set(x, 2.5, z);
-  trunk.castShadow = true;
-  trunk.receiveShadow = true;
-  
-  // Feuillage (sous forme de cônes empilés)
+  trunk.position.set(0, 2.5, 0);  // Le tronc est à l'origine du groupe (0, 0, 0)
+
+  // Feuillage
   const leavesGroup = new THREE.Group();
+
   const leavesGeo1 = new THREE.ConeGeometry(3, 4, 8);
   const leavesMat = new THREE.MeshStandardMaterial({ color: 0x228B22 });
   const leaves1 = new THREE.Mesh(leavesGeo1, leavesMat);
-  leaves1.position.y = 4;
-  leaves1.castShadow = true;
+  leaves1.position.set(0, 5, 0);  // Feuillage commence à 5 (2.5 + 4)
   leavesGroup.add(leaves1);
-  
+
   const leavesGeo2 = new THREE.ConeGeometry(2.2, 3, 8);
   const leaves2 = new THREE.Mesh(leavesGeo2, leavesMat);
-  leaves2.position.y = 6;
-  leaves2.castShadow = true;
+  leaves2.position.set(0, 7, 0);  // Feuillage à 7
   leavesGroup.add(leaves2);
-  
+
   const leavesGeo3 = new THREE.ConeGeometry(1.5, 2, 8);
   const leaves3 = new THREE.Mesh(leavesGeo3, leavesMat);
-  leaves3.position.y = 7.5;
-  leaves3.castShadow = true;
+  leaves3.position.set(0, 8.5, 0);  // Feuillage à 8.5
   leavesGroup.add(leaves3);
-  
+
+  // Groupe de l'arbre
   const tree = new THREE.Group();
   tree.add(trunk);
   tree.add(leavesGroup);
+
+  // Positionner l'arbre entier (tronc + feuillage) à la position globale (x, 0, z)
   tree.position.set(x, 0, z);
-  
+
   return tree;
 };
 

@@ -1,8 +1,6 @@
 import { useRef, forwardRef, useImperativeHandle, useState } from "react";
-import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import gsap from "gsap";
-import * as THREE from "three";
 
 const Rocket3D = forwardRef((props, ref) => {
   const rocketRef = useRef();
@@ -13,13 +11,6 @@ const Rocket3D = forwardRef((props, ref) => {
 
   // Ajuster l'échelle et la rotation initiale
   scene.scale.set(0.5, 0.5, 0.5); // Ajustez selon la taille de votre modèle
-
-  // Animation légère (rotation de la fusée)
-  useFrame(() => {
-    if (rocketRef.current && !launched) {
-      rocketRef.current.rotation.y += 0.005;
-    }
-  });
 
   // Exposer la fonction `launchRocket` au parent
   useImperativeHandle(ref, () => ({
@@ -51,7 +42,7 @@ const Rocket3D = forwardRef((props, ref) => {
   return (
     <group
       ref={rocketRef}
-      position={[0, 2.2, 0]} // Position sur la surface de la terre
+      position={[0, 0, 0]} // Position sur la surface de la terre
       {...props}
     >
       <primitive object={scene} />

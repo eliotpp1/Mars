@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
 import { createTerrain, createTrees } from './../game/scenes/LandscapeObject';
 import './EarthLandscape.css';
+import Rocket3D from './Rocket3D'; // Importer Rocket3D
 
 const EarthLandscape = () => {
   const mountRef = useRef(null);
@@ -9,6 +10,9 @@ const EarthLandscape = () => {
   const cameraRef = useRef(null);
   const rendererRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
+
+  // Ref pour contrôler le lancement de la fusée
+  const rocketRef = useRef();
 
   // Variables pour les contrôles
   const controls = useRef({
@@ -63,7 +67,11 @@ const EarthLandscape = () => {
       const terrain = createTerrain();
       scene.add(terrain);
 
-      const trees = createTrees(30);
+      // Ajouter la fusée à la scène
+      <Rocket3D ref={rocketRef} />;
+
+
+      const trees = createTrees(50);
       trees.forEach(tree => scene.add(tree));
 
       // Indiquer que le montage est terminé
@@ -96,14 +104,29 @@ const EarthLandscape = () => {
 
     const handleMouseMove = (event) => {
       if (!isReady) return;
-
+    
       const movementX = event.movementX || 0;
       const movementY = event.movementY || 0;
-
+    
+      // Rotation gauche/droite (horizontal) : Ne touche qu'à l'axe Y
       cameraRef.current.rotation.y -= movementX * 0.002;
-      cameraRef.current.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, cameraRef.current.rotation.x - movementY * 0.002));
+    
+      // Limiter la rotation haut/bas (verticale) pour éviter que la caméra se retrouve à l'envers
+      const maxRotationX = Math.PI / 2; // 90 degrés vers le bas
+      const minRotationX = -Math.PI / 2; // 90 degrés vers le haut
+      cameraRef.current.rotation.x -= movementY * 0.002;
+    
+      // Applique la limite pour l'axe X
+      if (cameraRef.current.rotation.x > maxRotationX) {
+        cameraRef.current.rotation.x = maxRotationX;
+      } else if (cameraRef.current.rotation.x < minRotationX) {
+        cameraRef.current.rotation.x = minRotationX;
+      }
+    
+      // Assurez-vous que la rotation sur l'axe Z est nulle
+      cameraRef.current.rotation.z = 0;
     };
-
+    
     // Animation principale
     const animate = () => {
       requestAnimationFrame(animate);
@@ -119,9 +142,9 @@ const EarthLandscape = () => {
       controls.current.direction.normalize();
 
       if (controls.current.moveForward || controls.current.moveBackward)
-        controls.current.velocity.z -= controls.current.direction.z * 20.0 * delta;
+        controls.current.velocity.z -= controls.current.direction.z * 200.0 * delta;
       if (controls.current.moveLeft || controls.current.moveRight)
-        controls.current.velocity.x -= controls.current.direction.x * 20.0 * delta;
+        controls.current.velocity.x -= controls.current.direction.x * 200.0 * delta;
 
       cameraRef.current.translateX(-controls.current.velocity.x * delta);
       cameraRef.current.translateZ(controls.current.velocity.z * delta);
@@ -196,8 +219,9 @@ const EarthLandscape = () => {
     <div className="earth-landscape-container" ref={mountRef} onClick={lockPointer}>
       <div className="instructions">
         <h2>Paysage Terrestre</h2>
-        <p>Utilisez WASD pour vous déplacer et la souris pour regarder autour</p>
+        <p>Utilisez ZQSD pour vous déplacer et la souris pour regarder autour</p>
         <p>Cliquez sur l'écran pour activer les contrôles</p>
+        <button onClick={() => rocketRef.current.launchRocket()}>Lancer la fusée</button> {/* Lancer la fusée */}
       </div>
     </div>
   );
