@@ -1,84 +1,181 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700&display=swap");
+
 :root {
-  --primary-color: #4caf50;
-  --primary-hover: #45a049;
-  --secondary-color: #ffc107;
-  --secondary-hover: #ffa000;
-  --background-start: #1a365d;
-  --background-end: #2563eb;
+  --yellow: #ffea00;
+  --red: #ff5e5e;
+  --orange: #ff9f1c;
+  --dark-blue: #090979;
+  --dark-dark-blue: #020024;
+  --spacing-medium: 20px;
+  --spacing-large: 40px;
   --white-transparent: rgba(255, 255, 255, 0.1);
-  --transition-speed: 300ms;
-  --border-radius-small: 8px;
-  --border-radius-large: 16px;
-  --border-radius-full: 9999px;
-  --spacing-small: 8px;
-  --spacing-medium: 16px;
-  --spacing-large: 24px;
+  --border-radius-large: 20px;
+  --transition-speed: 0.3s;
+  --spacing-small: 10px;
+  --spacing-medium: 20px;
 }
 
-/* Classes de layout */
-.game-container {
-  min-height: 100vh;
-  background: linear-gradient(
-    to bottom,
-    var(--background-start),
-    var(--background-end)
-  );
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.home-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-medium);
+  height: 100vh;
+  background: radial-gradient(circle, var(--dark-blue), var(--dark-dark-blue));
+  font-family: "Orbitron", sans-serif;
+  text-align: center;
+  color: white;
   position: relative;
+  overflow: hidden;
 }
 
-/* Classes de boutons */
-.button {
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all var(--transition-speed);
+.game-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: radial-gradient(circle, var(--dark-blue), var(--dark-dark-blue));
+  font-family: "Orbitron", sans-serif;
+  text-align: center;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  padding: var(--spacing-medium);
+}
+
+/* Création du ciel étoilé */
+.stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: twinkle linear infinite;
+}
+
+/* Génération aléatoire des étoiles */
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.3);
+  }
+}
+
+h1 {
+  font-family: "Press Start 2P", cursive;
+  font-size: 2.5rem;
+  text-shadow: 3px 3px 10px var(--yellow);
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Formulaire */
+form {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80%;
+  max-width: 400px;
+  position: relative;
+  z-index: 1;
+}
+
+input {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.2rem;
+  padding: 12px;
+  width: 100%;
+  border: 3px solid var(--yellow);
+  border-radius: 10px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  outline: none;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+/* Bouton façon néon spatial */
+button {
+  display: flex;
   gap: var(--spacing-small);
   padding: var(--spacing-medium);
+  font-family: "Press Start 2P", cursive;
+  font-size: 1rem;
+  align-items: center;
+  background: linear-gradient(90deg, var(--yellow), var(--red));
   color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  margin-top: 10px;
+  box-shadow: 0px 0px 10px var(--yellow);
+  position: relative;
+  z-index: 1;
 }
 
-.button:hover {
-  transform: scale(1.05);
+button:hover {
+  background: linear-gradient(90deg, var(--red), var(--yellow));
+  box-shadow: 0px 0px 20px var(--yellow);
+  transform: scale(1.1);
 }
 
-.button-primary {
-  background-color: var(--primary-color);
-  border-radius: var(--border-radius-full);
-  padding: var(--spacing-medium) var(--spacing-large);
-  font-size: 1.25rem;
+button:active {
+  transform: scale(0.9);
 }
 
-.button-primary:hover {
-  background-color: var(--primary-hover);
+/* Ajout d'une animation "flottante" */
+@keyframes floating {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }
 
-.button-secondary {
-  background-color: var(--secondary-color);
-  border-radius: var(--border-radius-full);
+h1,
+form {
+  animation: floating 2s infinite ease-in-out;
 }
 
-.button-secondary:hover {
-  background-color: var(--secondary-hover);
-}
-
-.button-circular {
-  background-color: var(--white-transparent);
-  border-radius: var(--border-radius-full);
-  padding: var(--spacing-medium);
-}
-
-.button-circular:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-/* Classes de positionnement */
+/* Vehicle */
 .shop-button {
   position: absolute;
   top: var(--spacing-medium);
@@ -124,4 +221,101 @@
   .vehicle-selector {
     gap: var(--spacing-medium);
   }
+}
+
+.shop-container {
+  padding: 20px;
+  text-align: center;
+  background: radial-gradient(circle, #090979, #020024);
+  color: white;
+  min-height: 100vh;
+  font-family: "Orbitron", sans-serif;
+}
+
+/* Titre et crédits */
+.shop-container h1 {
+  margin-bottom: 10px;
+  font-size: 2rem;
+}
+
+.shop-container p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+/* Grille des produits */
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Carte d'un produit */
+.shop-item {
+  background: #1a1a1a;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Image du produit */
+.shop-item-image {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+/* Informations sur le produit */
+.shop-item h3 {
+  margin: 10px 0 5px;
+  font-size: 1.2rem;
+}
+
+.shop-item p {
+  margin: 5px 0;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+/* Bouton d'achat */
+.shop-item button {
+  background: #ffcc00;
+  color: #000;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+
+.shop-item button:hover {
+  background: #ffdb4d;
+}
+
+/* Bouton "Retour" centré */
+.back-button {
+  display: block;
+  margin: 30px auto 0 auto;
+  background: #ff5e5e;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.back-button:hover {
+  background: #ff3b3b;
 }

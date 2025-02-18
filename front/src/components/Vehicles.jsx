@@ -1,17 +1,28 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, ShoppingBag, Play } from "lucide-react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { generateStars } from "../hooks/generateStars";
 
 const SELECTED_VEHICLE_KEY = "selectedVehicle";
 
-const GameStartPage = () => {
+const Vehicles = () => {
   const [currentVehicle, setCurrentVehicle] = useState(() => {
     const savedVehicle = localStorage.getItem(SELECTED_VEHICLE_KEY);
     return savedVehicle !== null ? parseInt(savedVehicle, 10) : 0;
   });
   const [isLoading, setIsLoading] = useState(true);
+  const starsRef = useRef(null); // Référence pour le conteneur des étoiles
+
+  useEffect(() => {
+    if (starsRef.current) {
+      generateStars(starsRef.current);
+    }
+  }, []);
+
+  const navigate = useNavigate();
 
   const containerRef = useRef();
   const sceneRef = useRef(new THREE.Scene());
@@ -167,7 +178,11 @@ const GameStartPage = () => {
 
   return (
     <div className="game-container">
-      <button className="button button-secondary shop-button">
+      <div className="stars" ref={starsRef}></div> {/* Conteneur des étoiles */}
+      <button
+        className="button button-secondary shop-button"
+        onClick={() => navigate("/shop")}
+      >
         <ShoppingBag size={24} />
         <span>Boutique</span>
       </button>
@@ -204,4 +219,4 @@ const GameStartPage = () => {
   );
 };
 
-export default GameStartPage;
+export default Vehicles;

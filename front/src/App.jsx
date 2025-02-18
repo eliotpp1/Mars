@@ -1,21 +1,31 @@
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import GameStartPage from "./components/GetStartGame";
+import Home from "./components/Home";
+import Vehicles from "./components/Vehicles";
+import Shop from "./components/Shop";
 
 function App() {
   return (
-    <div>
-      <GameStartPage />
-      <Canvas
-        // style={{ width: "100vw", height: "100vh" }}
-        camera={{ position: [3, 0, 0] }}
-      >
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/vehicles" element={<Vehicles />} />
+        <Route path="/shop" element={<Shop />} />
+
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+      <Canvas camera={{ position: [3, 0, 0] }}>
         <ambientLight intensity={2} />
         <pointLight position={[10, 10, 10]} />
-
         <OrbitControls />
       </Canvas>
-    </div>
+    </Router>
   );
 }
 
