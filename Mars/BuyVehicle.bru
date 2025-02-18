@@ -1,0 +1,19 @@
+meta {
+  name: BuyVehicle
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:5000/buy-vehicle
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "userId": 1,
+    "vehicle_id": 2
+  }
+  
+}
