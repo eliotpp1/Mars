@@ -2,7 +2,7 @@ import { useRef, useEffect, forwardRef } from "react";
 import { useGLTF, useAnimations } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 
-export const AnimatedHuman = forwardRef(({ position, rotation, scale }, ref) => {
+export const AnimatedHuman = forwardRef(({ position, rotation, scale, isWalking }, ref) => {
   const localRef = useRef();
   const actualRef = ref || localRef;
   const human = useGLTF("/assets/models/homme.gltf");
@@ -10,10 +10,14 @@ export const AnimatedHuman = forwardRef(({ position, rotation, scale }, ref) => 
 
   useEffect(() => {
     if (actions.Walk) {
-      actions.Walk.play();
-      actions.Walk.timeScale = 0.5;
+      if (isWalking) {
+        actions.Walk.reset().play();
+        actions.Walk.timeScale = 0.5;
+      } else {
+        actions.Walk.stop();
+      }
     }
-  }, [actions]);
+  }, [actions, isWalking]);
 
   useFrame((state, delta) => {
     mixer?.update(delta);
