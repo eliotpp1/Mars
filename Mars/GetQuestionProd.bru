@@ -1,0 +1,15 @@
+meta {
+  name: GetQuestionProd
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{prod}}question/:env
+  body: none
+  auth: none
+}
+
+params:path {
+  env: Terre
+}

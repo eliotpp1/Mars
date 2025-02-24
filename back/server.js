@@ -7,6 +7,13 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+console.log("DB_HOST:", process.env.DB_HOST);
+console.log("DB_USER:", process.env.DB_USER);
+console.log("DB_NAME:", process.env.DB_NAME);
+// ✅ Accueil
+app.get("/", (req, res) => {
+  res.send("Bienvenue sur l'API de l'application de quizz !");
+});
 // ✅ Récupérer tous les véhicules
 app.get("/vehicles", async (req, res) => {
   try {
@@ -17,49 +24,29 @@ app.get("/vehicles", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur." });
   }
 });
-
-// ✅ Acheter un véhicule
-app.post("/buy-vehicle", async (req, res) => {
-  const { userId, vehicleId } = req.body;
-  console.log(req.body);
-
+app.get("/question/:env", async (req, res) => {
+  const { env } = req.params;
   try {
-    // Vérifier l'utilisateur et le véhicule
-    const [[user]] = await db.query(
-      "SELECT mars_balance FROM users WHERE id = ?",
-      [userId]
-    );
-    const [[vehicle]] = await db.query(
-      "SELECT price FROM vehicles WHERE id = ?",
-      [vehicleId]
+    const [rows] = await db.query(
+      "SELECT id, question, choix1, choix2, choix3, choix4 FROM questions WHERE environnement = ? ORDER BY RAND() LIMIT 1",
+      [env]
     );
 
-    if (!user || !vehicle)
+    if (rows.length === 0) {
       return res
         .status(404)
-        .json({ message: "Utilisateur ou véhicule non trouvé." });
-    if (user.mars_balance < vehicle.price)
-      return res.status(400).json({ message: "Solde Mars insuffisant." });
+        .json({ message: "Aucune question trouvée pour cet environnement." });
+    }
 
-    // Déduire la monnaie et ajouter le véhicule
-    await db.query(
-      "UPDATE users SET mars_balance = mars_balance - ? WHERE id = ?",
-      [vehicle.price, userId]
-    );
-    await db.query(
-      "INSERT INTO user_vehicles (user_id, vehicle_id) VALUES (?, ?)",
-      [userId, vehicleId]
-    );
-
-    res.json({ message: "Véhicule débloqué avec succès !" });
+    res.json(rows[0]);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Erreur serveur." });
+    res.status(500).json({ message: "Erreur serveur" });
   }
 });
 
 // ✅ Démarrer le serveur
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 80;
 app.listen(PORT, () => {
   console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
 });
