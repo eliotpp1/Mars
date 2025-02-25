@@ -7,23 +7,13 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { generateStars } from "../hooks/generateStars";
 
 const SELECTED_VEHICLE_KEY = "selectedVehicle";
+const UNLOCKED_VEHICLES_KEY = "unlockedVehicles";
 
 const Vehicles = () => {
-  const [currentVehicle, setCurrentVehicle] = useState(() => {
-    const savedVehicle = localStorage.getItem(SELECTED_VEHICLE_KEY);
-    return savedVehicle !== null ? parseInt(savedVehicle, 10) : 0;
-  });
+  const [vehiclesApi, setVehiclesApi] = useState([]);
+  const [currentVehicle, setCurrentVehicle] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const starsRef = useRef(null); // Référence pour le conteneur des étoiles
-
-  useEffect(() => {
-    if (starsRef.current) {
-      generateStars(starsRef.current);
-    }
-  }, []);
-
-  const navigate = useNavigate();
-
+  const starsRef = useRef(null);
   const containerRef = useRef();
   const sceneRef = useRef(new THREE.Scene());
   const cameraRef = useRef();
@@ -31,23 +21,75 @@ const Vehicles = () => {
   const controlsRef = useRef();
   const modelsRef = useRef({});
 
-  const vehicles = [
-    {
-      name: "Voiture de course",
-      model: "/assets/models/rocket.glb",
-      scale: 15,
-      position: [0, 2, 0],
-    },
-    {
-      name: "Moto",
-      model: "/assets/models/motorcycle.glb",
-      scale: 20,
-      position: [0, 0, 0],
-    },
-  ];
+  const navigate = useNavigate();
+
+  const UNLOCKED_VEHICLES_KEY = "unlockedVehicles";
 
   useEffect(() => {
-    localStorage.setItem(SELECTED_VEHICLE_KEY, currentVehicle.toString());
+    if (starsRef.current) {
+      generateStars(starsRef.current);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const response = await fetch(
+          "https://easydeck.alwaysdata.net/vehicles"
+        );
+        const data = await response.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setVehiclesApi(data);
+
+          let unlocked = JSON.parse(
+            localStorage.getItem(UNLOCKED_VEHICLES_KEY)
+          ) || [0];
+          if (!Array.isArray(unlocked)) {
+            unlocked = [0];
+            localStorage.setItem(
+              UNLOCKED_VEHICLES_KEY,
+              JSON.stringify(unlocked)
+            );
+          }
+
+          const savedVehicle = parseInt(
+            localStorage.getItem(SELECTED_VEHICLE_KEY),
+            10
+          );
+          const validVehicle = unlocked.includes(savedVehicle)
+            ? savedVehicle
+            : unlocked[0];
+          setCurrentVehicle(validVehicle);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des véhicules:", error);
+      }
+    };
+    fetchVehicles();
+  }, []);
+
+  useEffect(() => {
+    if (vehiclesApi.length > 0) {
+      preloadModels();
+    }
+  }, [vehiclesApi]);
+
+  useEffect(() => {
+    if (vehiclesApi.length > 0) {
+      localStorage.setItem(SELECTED_VEHICLE_KEY, currentVehicle.toString());
+      showCurrentModel(currentVehicle);
+    }
+  }, [currentVehicle, vehiclesApi]);
+
+  useEffect(() => {
+    let unlocked = JSON.parse(localStorage.getItem(UNLOCKED_VEHICLES_KEY)) || [
+      0,
+    ];
+    console.log("unlocked", currentVehicle);
+    if (!unlocked.includes(currentVehicle)) {
+      unlocked.push(currentVehicle);
+      localStorage.setItem(UNLOCKED_VEHICLES_KEY, JSON.stringify(unlocked));
+    }
   }, [currentVehicle]);
 
   const preloadModels = async () => {
@@ -55,7 +97,7 @@ const Vehicles = () => {
     setIsLoading(true);
 
     try {
-      const modelPromises = vehicles.map(async (vehicle, index) => {
+      const modelPromises = vehiclesApi.map(async (vehicle, index) => {
         const gltf = await loader.loadAsync(vehicle.model);
         const model = gltf.scene;
         const group = new THREE.Group();
@@ -64,16 +106,13 @@ const Vehicles = () => {
 
         const box = new THREE.Box3().setFromObject(group);
         const center = box.getCenter(new THREE.Vector3());
-        const size = box.getSize(new THREE.Vector3());
         group.position.sub(center);
-        group.position.y = index === 0 ? size.y / 15 : -size.y / 3;
-        group.position.x += vehicle.position[0];
-        group.position.z += vehicle.position[2];
+        group.position.y += vehicle.position[1];
 
         group.visible = false;
         sceneRef.current.add(group);
 
-        return { group, size };
+        return { group, size: box.getSize(new THREE.Vector3()) };
       });
 
       const loadedModels = await Promise.all(modelPromises);
@@ -81,8 +120,8 @@ const Vehicles = () => {
         modelsRef.current[index] = model;
       });
 
-      showCurrentModel(currentVehicle);
       setIsLoading(false);
+      showCurrentModel(currentVehicle);
     } catch (error) {
       console.error("Erreur lors du préchargement des modèles:", error);
       setIsLoading(false);
@@ -91,7 +130,9 @@ const Vehicles = () => {
 
   const showCurrentModel = (index) => {
     Object.values(modelsRef.current).forEach(({ group }, i) => {
-      group.visible = i === index;
+      if (group) {
+        group.visible = i === index;
+      }
     });
 
     const currentModel = modelsRef.current[index];
@@ -158,8 +199,6 @@ const Vehicles = () => {
         renderer.render(scene, camera);
       };
       animate();
-
-      preloadModels();
     };
 
     initThree();
@@ -170,15 +209,30 @@ const Vehicles = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!isLoading) {
-      showCurrentModel(currentVehicle);
-    }
-  }, [currentVehicle, isLoading]);
+  const unlockedVehicles = JSON.parse(
+    localStorage.getItem(UNLOCKED_VEHICLES_KEY)
+  ) || [0];
+  const unlockedIndexes = vehiclesApi
+    .map((_, index) => index)
+    .filter((index) => unlockedVehicles.includes(index));
+
+  const currentIndex = unlockedIndexes.indexOf(currentVehicle);
+
+  const goToPrevious = () => {
+    const prevIndex =
+      (currentIndex - 1 + unlockedIndexes.length) % unlockedIndexes.length;
+    setCurrentVehicle(unlockedIndexes[prevIndex]);
+  };
+
+  const goToNext = () => {
+    const nextIndex = (currentIndex + 1) % unlockedIndexes.length;
+    setCurrentVehicle(unlockedIndexes[nextIndex]);
+  };
 
   return (
     <div className="game-container">
-      <div className="stars" ref={starsRef}></div> {/* Conteneur des étoiles */}
+      <h1>Choisissez un véhicule</h1>
+      <div className="stars" ref={starsRef}></div>
       <button
         className="button button-secondary shop-button"
         onClick={() => navigate("/shop")}
@@ -189,12 +243,8 @@ const Vehicles = () => {
       <div className="vehicle-selector">
         <button
           className="button button-circular"
-          onClick={() =>
-            setCurrentVehicle(
-              (prev) => (prev - 1 + vehicles.length) % vehicles.length
-            )
-          }
-          disabled={isLoading}
+          onClick={goToPrevious}
+          disabled={unlockedIndexes.length <= 1}
         >
           <ChevronLeft size={32} />
         </button>
@@ -203,10 +253,8 @@ const Vehicles = () => {
         </div>
         <button
           className="button button-circular"
-          onClick={() =>
-            setCurrentVehicle((prev) => (prev + 1) % vehicles.length)
-          }
-          disabled={isLoading}
+          onClick={goToNext}
+          disabled={unlockedIndexes.length <= 1}
         >
           <ChevronRight size={32} />
         </button>

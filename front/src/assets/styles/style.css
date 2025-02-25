@@ -6,49 +6,31 @@
   --orange: #ff9f1c;
   --dark-blue: #090979;
   --dark-dark-blue: #020024;
+  --spacing-small: 10px;
   --spacing-medium: 20px;
   --spacing-large: 40px;
   --white-transparent: rgba(255, 255, 255, 0.1);
   --border-radius-large: 20px;
   --transition-speed: 0.3s;
-  --spacing-small: 10px;
-  --spacing-medium: 20px;
 }
 
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
 }
 
-.home-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background: radial-gradient(circle, var(--dark-blue), var(--dark-dark-blue));
-  font-family: "Orbitron", sans-serif;
-  text-align: center;
-  color: white;
-  position: relative;
-  overflow: hidden;
-}
-
+.home-container,
 .game-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  min-height: 100vh;
   background: radial-gradient(circle, var(--dark-blue), var(--dark-dark-blue));
   font-family: "Orbitron", sans-serif;
   text-align: center;
   color: white;
   position: relative;
-  overflow: hidden;
-  min-height: 100vh;
-  padding: var(--spacing-medium);
 }
 
 /* Création du ciel étoilé */
@@ -90,6 +72,10 @@ h1 {
   margin-bottom: 20px;
   position: relative;
   z-index: 1;
+}
+
+.game-container h1 {
+  font-size: 1rem;
 }
 
 /* Formulaire */
@@ -155,6 +141,12 @@ button:hover {
 
 button:active {
   transform: scale(0.9);
+}
+
+.disabled-button {
+  background: #666;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 /* Ajout d'une animation "flottante" */
@@ -224,56 +216,61 @@ form {
 }
 
 .shop-container {
-  padding: 20px;
+  padding: var(--spacing-medium);
   text-align: center;
-  background: radial-gradient(circle, #090979, #020024);
+  background: radial-gradient(circle, var(--dark-blue), var(--dark-dark-blue));
   color: white;
   min-height: 100vh;
   font-family: "Orbitron", sans-serif;
 }
 
-/* Titre et crédits */
 .shop-container h1 {
-  margin-bottom: 10px;
+  margin-bottom: var(--spacing-small);
   font-size: 2rem;
 }
 
 .shop-container p {
   font-size: 1.2rem;
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-medium);
 }
 
-/* Grille des produits */
 .shop-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
+  gap: var(--spacing-medium);
+  margin-top: var(--spacing-medium);
 }
 
-/* Carte d'un produit */
 .shop-item {
   background: #1a1a1a;
   border-radius: 10px;
-  padding: 15px;
+  padding: var(--spacing-small);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: transform var(--transition-speed);
 }
 
-/* Image du produit */
+.shop-item:hover {
+  transform: scale(1.05);
+}
+
+.shop-item.owned {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
 .shop-item-image {
   width: 100%;
   max-width: 200px;
   height: auto;
   border-radius: 10px;
-  margin-bottom: 10px;
+  margin-bottom: var(--spacing-small);
 }
 
-/* Informations sur le produit */
 .shop-item h3 {
-  margin: 10px 0 5px;
+  margin: var(--spacing-small) 0 5px;
   font-size: 1.2rem;
 }
 
@@ -283,39 +280,54 @@ form {
   font-size: 1rem;
 }
 
-/* Bouton d'achat */
 .shop-item button {
-  background: #ffcc00;
+  background: var(--yellow);
   color: #000;
-  border: none;
   padding: 8px 15px;
   border-radius: 5px;
-  cursor: pointer;
   font-weight: bold;
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.3s ease;
+  margin-top: var(--spacing-small);
+  transition: background var(--transition-speed);
 }
 
 .shop-item button:hover {
   background: #ffdb4d;
 }
 
+.shop-item button:disabled {
+  background: #666;
+  color: #aaa;
+  cursor: not-allowed;
+}
+
 /* Bouton "Retour" centré */
 .back-button {
   display: block;
-  margin: 30px auto 0 auto;
-  background: #ff5e5e;
+  margin: 30px auto 0;
+  background: var(--red);
   color: white;
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background var(--transition-speed);
 }
 
 .back-button:hover {
   background: #ff3b3b;
+}
+
+@media (max-width: 768px) {
+  .vehicle-display {
+    width: 300px;
+    height: 300px;
+  }
+
+  .vehicle-selector {
+    gap: var(--spacing-medium);
+  }
+
+  .shop-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
 }

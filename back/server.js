@@ -18,17 +18,28 @@ app.get("/", (req, res) => {
 app.get("/vehicles", async (req, res) => {
   try {
     const [vehicles] = await db.query("SELECT * FROM vehicles");
-    res.json(vehicles);
+
+    const formattedVehicles = vehicles.map((vehicle) => ({
+      id: vehicle.id,
+      name: vehicle.name,
+      model: vehicle.model_path, // Renomme "model_path" en "model"
+      scale: vehicle.scale,
+      position: [vehicle.position_x, vehicle.position_y, vehicle.position_z], // Regroupe en tableau
+      price: vehicle.price,
+    }));
+
+    res.json(formattedVehicles);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Erreur serveur." });
   }
 });
+
 app.get("/question/:env", async (req, res) => {
   const { env } = req.params;
   try {
     const [rows] = await db.query(
-      "SELECT id, question, choix1, choix2, choix3, choix4 FROM questions WHERE environnement = ? ORDER BY RAND() LIMIT 1",
+      "SELECT id, question, choix1, choix2, choix3, choix4, reponse_correcte FROM questions WHERE environnement = ? ORDER BY RAND() LIMIT 1",
       [env]
     );
 

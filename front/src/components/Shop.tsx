@@ -1,34 +1,69 @@
 import { useState, useEffect, useRef } from "react";
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
 import API_URL from "../constants/api";
 import { generateStars } from "../hooks/generateStars";
 
+const CREDITS_KEY = "credits";
+const UNLOCKED_VEHICLES_KEY = "unlockedVehicles";
+
 const Shop = () => {
   const [vehicles, setVehicles] = useState([]);
-  const [credits, setCredits] = useState(
-    parseInt(localStorage.getItem("credits"), 10) || 1000
-  );
-  const starsRef = useRef(null); // Référence pour le conteneur des étoiles
+  const [credits, setCredits] = useState(() => {
+    return parseInt(localStorage.getItem(CREDITS_KEY), 10) || 1000;
+  });
+  const [unlockedVehicles, setUnlockedVehicles] = useState(() => {
+    const storedVehicles = JSON.parse(
+      localStorage.getItem(UNLOCKED_VEHICLES_KEY)
+    ) || [0];
+    return Array.isArray(storedVehicles) ? storedVehicles : [0];
+  });
 
+  const starsRef = useRef(null);
   const navigate = useNavigate();
+
   useEffect(() => {
-    generateStars(starsRef.current);
+    if (starsRef.current) {
+      generateStars(starsRef.current);
+    }
   }, []);
 
   useEffect(() => {
-    fetch(`${API_URL}/vehicles`)
-      .then((res) => res.json())
-      .then((data) => setVehicles(data))
-      .catch((error) => console.error("Erreur API:", error));
+    const fetchVehicles = async () => {
+      try {
+        const response = await fetch(`${API_URL}/vehicles`);
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          setVehicles(data);
+        }
+      } catch (error) {
+        console.error("Erreur API:", error);
+      }
+    };
+    fetchVehicles();
   }, []);
 
-  const handlePurchase = (vehicle) => {
+  const handlePurchase = (index) => {
+    if (unlockedVehicles.includes(index)) {
+      alert(`Vous possédez déjà ce véhicule !`);
+      return;
+    }
+
+    const vehicle = vehicles[index];
+
     if (credits >= vehicle.price) {
       const newCredits = credits - vehicle.price;
+      const updatedUnlocked = [...unlockedVehicles, index];
+
       setCredits(newCredits);
-      localStorage.setItem("credits", newCredits);
+      setUnlockedVehicles(updatedUnlocked);
+
+      localStorage.setItem(CREDITS_KEY, newCredits.toString());
+      localStorage.setItem(
+        UNLOCKED_VEHICLES_KEY,
+        JSON.stringify(updatedUnlocked)
+      );
+
       alert(`Vous avez acheté : ${vehicle.name} !`);
     } else {
       alert("Crédits insuffisants !");
@@ -37,24 +72,37 @@ const Shop = () => {
 
   return (
     <div className="shop-container">
-      <div className="stars" ref={starsRef}></div> {/* Conteneur des étoiles */}
+      <div className="stars" ref={starsRef}></div>
       <h1>Boutique</h1>
       <p>Crédits : {credits}</p>
       <div className="shop-grid">
-        {vehicles.map((vehicle) => (
-          <div key={vehicle.id} className="shop-item">
-            <img
-              src={vehicle.model_path.replace(".glb", ".png")}
-              alt={vehicle.name}
-              className="shop-item-image"
-            />
-            <h3>{vehicle.name}</h3>
-            <p>Prix : {vehicle.price} crédits</p>
-            <button onClick={() => handlePurchase(vehicle)}>
-              <ShoppingCart size={20} /> Acheter
-            </button>
-          </div>
-        ))}
+        {vehicles.map((vehicle, index) => {
+          const isOwned = unlockedVehicles.includes(index);
+          return (
+            <div key={index} className={`shop-item ${isOwned ? "owned" : ""}`}>
+              <img
+                src={
+                  vehicle.model_path
+                    ? vehicle.model_path.replace(".glb", ".png")
+                    : "/images/default.png"
+                }
+                alt={vehicle.name}
+                className="shop-item-image"
+              />
+
+              <h3>{vehicle.name}</h3>
+              <p>Prix : {vehicle.price} crédits</p>
+              <button
+                onClick={() => handlePurchase(index)}
+                disabled={isOwned}
+                className={isOwned ? "disabled-button" : ""}
+              >
+                <ShoppingCart size={20} />
+                {isOwned ? "Acheté" : "Acheter"}
+              </button>
+            </div>
+          );
+        })}
       </div>
       <button onClick={() => navigate("/vehicles")} className="back-button">
         Retour
