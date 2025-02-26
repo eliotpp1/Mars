@@ -191,11 +191,14 @@ form {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .vehicle-display canvas {
   border-radius: 20px; /* Arrondi les coins du canvas */
   display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .vehicle-name {

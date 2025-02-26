@@ -16,9 +16,9 @@ const Home = () => {
     if (name.trim()) {
       localStorage.setItem("playerName", name);
 
-      // Vérifie si "credits" est déjà défini, sinon le mettre à 1000
+      // Vérifie si "credits" est déjà défini, sinon le mettre à 0
       if (!localStorage.getItem("credits")) {
-        localStorage.setItem("credits", "1000");
+        localStorage.setItem("credits", "100");
       }
 
       navigate("/vehicles");

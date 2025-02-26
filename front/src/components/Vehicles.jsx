@@ -23,8 +23,6 @@ const Vehicles = () => {
 
   const navigate = useNavigate();
 
-  const UNLOCKED_VEHICLES_KEY = "unlockedVehicles";
-
   useEffect(() => {
     if (starsRef.current) {
       generateStars(starsRef.current);
@@ -39,11 +37,12 @@ const Vehicles = () => {
         );
         const data = await response.json();
         if (Array.isArray(data) && data.length > 0) {
+          console.log("Véhicules récupérés:", data);
           setVehiclesApi(data);
 
           let unlocked = JSON.parse(
             localStorage.getItem(UNLOCKED_VEHICLES_KEY)
-          ) || [0];
+          ) || [0]; // Retour à la normale : seul 0 est déverrouillé par défaut
           if (!Array.isArray(unlocked)) {
             unlocked = [0];
             localStorage.setItem(
@@ -60,6 +59,8 @@ const Vehicles = () => {
             ? savedVehicle
             : unlocked[0];
           setCurrentVehicle(validVehicle);
+        } else {
+          console.warn("Aucun véhicule récupéré ou données invalides:", data);
         }
       } catch (error) {
         console.error("Erreur lors de la récupération des véhicules:", error);
@@ -75,7 +76,7 @@ const Vehicles = () => {
   }, [vehiclesApi]);
 
   useEffect(() => {
-    if (vehiclesApi.length > 0) {
+    if (vehiclesApi.length > 0 && Object.keys(modelsRef.current).length > 0) {
       localStorage.setItem(SELECTED_VEHICLE_KEY, currentVehicle.toString());
       showCurrentModel(currentVehicle);
     }
@@ -85,11 +86,11 @@ const Vehicles = () => {
     let unlocked = JSON.parse(localStorage.getItem(UNLOCKED_VEHICLES_KEY)) || [
       0,
     ];
-    console.log("unlocked", currentVehicle);
     if (!unlocked.includes(currentVehicle)) {
       unlocked.push(currentVehicle);
       localStorage.setItem(UNLOCKED_VEHICLES_KEY, JSON.stringify(unlocked));
     }
+    console.log("Véhicules déverrouillés:", unlocked);
   }, [currentVehicle]);
 
   const preloadModels = async () => {
@@ -98,40 +99,58 @@ const Vehicles = () => {
 
     try {
       const modelPromises = vehiclesApi.map(async (vehicle, index) => {
-        const gltf = await loader.loadAsync(vehicle.model);
-        const model = gltf.scene;
-        const group = new THREE.Group();
-        group.add(model);
-        group.scale.setScalar(vehicle.scale);
+        try {
+          const gltf = await loader.loadAsync(vehicle.model);
+          const model = gltf.scene;
+          const group = new THREE.Group();
+          group.add(model);
+          group.scale.setScalar(vehicle.scale || 1);
 
-        const box = new THREE.Box3().setFromObject(group);
-        const center = box.getCenter(new THREE.Vector3());
-        group.position.sub(center);
-        group.position.y += vehicle.position[1];
+          const box = new THREE.Box3().setFromObject(group);
+          const center = box.getCenter(new THREE.Vector3());
+          group.position.sub(center);
+          group.position.y += vehicle.position ? vehicle.position[1] : 0;
 
-        group.visible = false;
-        sceneRef.current.add(group);
+          group.visible = false;
+          sceneRef.current.add(group);
 
-        return { group, size: box.getSize(new THREE.Vector3()) };
+          console.log(`Modèle chargé: ${vehicle.name} (index ${index})`);
+          return { group, size: box.getSize(new THREE.Vector3()) };
+        } catch (error) {
+          console.error(
+            `Erreur lors du chargement de ${vehicle.name} (index ${index}):`,
+            error
+          );
+          return null;
+        }
       });
 
       const loadedModels = await Promise.all(modelPromises);
       loadedModels.forEach((model, index) => {
-        modelsRef.current[index] = model;
+        if (model) {
+          modelsRef.current[index] = model;
+        }
       });
 
+      console.log(
+        "Modèles chargés dans modelsRef:",
+        Object.keys(modelsRef.current)
+      );
       setIsLoading(false);
       showCurrentModel(currentVehicle);
     } catch (error) {
-      console.error("Erreur lors du préchargement des modèles:", error);
+      console.error(
+        "Erreur générale lors du préchargement des modèles:",
+        error
+      );
       setIsLoading(false);
     }
   };
 
   const showCurrentModel = (index) => {
-    Object.values(modelsRef.current).forEach(({ group }, i) => {
+    Object.values(modelsRef.current).forEach(({ group }) => {
       if (group) {
-        group.visible = i === index;
+        group.visible = false;
       }
     });
 
@@ -146,6 +165,13 @@ const Vehicles = () => {
 
       cameraRef.current.position.set(0, size.y * 0.5, cameraZ * 0.8);
       cameraRef.current.lookAt(new THREE.Vector3(0, 0, 0));
+
+      if (controlsRef.current) {
+        controlsRef.current.target.set(0, 0, 0);
+        controlsRef.current.update();
+      }
+    } else {
+      console.warn(`Modèle introuvable pour l'index ${index}`);
     }
   };
 
@@ -181,6 +207,8 @@ const Vehicles = () => {
       controls.dampingFactor = 0.05;
       controls.enableZoom = false;
       controls.enableRotate = true;
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 2.0;
       controls.enablePan = false;
       controls.minPolarAngle = Math.PI / 3;
       controls.maxPolarAngle = Math.PI / 1.8;
@@ -205,6 +233,10 @@ const Vehicles = () => {
     return () => {
       if (containerRef.current && rendererRef.current) {
         containerRef.current.removeChild(rendererRef.current.domElement);
+        rendererRef.current.dispose();
+      }
+      if (controlsRef.current) {
+        controlsRef.current.dispose();
       }
     };
   }, []);
@@ -259,7 +291,11 @@ const Vehicles = () => {
           <ChevronRight size={32} />
         </button>
       </div>
-      <button className="button button-primary" disabled={isLoading}>
+      <button
+        className="button button-primary"
+        onClick={() => navigate("/game")}
+        disabled={isLoading}
+      >
         <Play size={24} />
         JOUER
       </button>

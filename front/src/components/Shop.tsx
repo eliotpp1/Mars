@@ -10,7 +10,7 @@ const UNLOCKED_VEHICLES_KEY = "unlockedVehicles";
 const Shop = () => {
   const [vehicles, setVehicles] = useState([]);
   const [credits, setCredits] = useState(() => {
-    return parseInt(localStorage.getItem(CREDITS_KEY), 10) || 1000;
+    return parseInt(localStorage.getItem(CREDITS_KEY), 10) || 100;
   });
   const [unlockedVehicles, setUnlockedVehicles] = useState(() => {
     const storedVehicles = JSON.parse(
@@ -70,6 +70,8 @@ const Shop = () => {
     }
   };
 
+  console.log(vehicles.model);
+
   return (
     <div className="shop-container">
       <div className="stars" ref={starsRef}></div>
@@ -82,9 +84,11 @@ const Shop = () => {
             <div key={index} className={`shop-item ${isOwned ? "owned" : ""}`}>
               <img
                 src={
-                  vehicle.model_path
-                    ? vehicle.model_path.replace(".glb", ".png")
-                    : "/images/default.png"
+                  vehicle.model
+                    ? vehicle.model
+                        .replace("/assets/models/", "/assets/images/") // Remplace le dossier
+                        .replace(".glb", ".PNG") // Remplace l'extension
+                    : "/assets/images/default.png"
                 }
                 alt={vehicle.name}
                 className="shop-item-image"
