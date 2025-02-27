@@ -1,11 +1,11 @@
 meta {
-  name: GetQuestions
+  name: GetQuestionProd
   type: http
-  seq: 3
+  seq: 4
 }
 
 get {
-  url: https://easydeck.alwaysdata.net/api/question/:env
+  url: {{prod}}question/:env
   body: none
   auth: none
 }

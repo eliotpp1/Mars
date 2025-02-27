@@ -1,0 +1,15 @@
+meta {
+  name: GetVehicleById
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:3000/vehicles/:id
+  body: none
+  auth: none
+}
+
+params:path {
+  id: 1
+}

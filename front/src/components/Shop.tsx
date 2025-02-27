@@ -91,7 +91,7 @@ const Shop = () => {
                 src={
                   vehicle.model
                     ? vehicle.model
-                        .replace("/assets/models/", "/assets/images/")
+                        .replace("/assets/models/vehicles", "/assets/images/")
                         .replace(".glb", ".PNG")
                     : "/assets/images/default.png"
                 }

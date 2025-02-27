@@ -35,6 +35,36 @@ app.get("/vehicles", async (req, res) => {
   }
 });
 
+app.get("/vehicles/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [vehicles] = await db.query("SELECT * FROM vehicles WHERE id = ?", [
+      id,
+    ]);
+
+    if (vehicles.length === 0) {
+      return res.status(404).json({ message: "Véhicule non trouvé." });
+    }
+
+    const vehicle = vehicles[0];
+
+    const formattedVehicle = {
+      id: vehicle.id,
+      name: vehicle.name,
+      model: vehicle.model_path, // Renomme "model_path" en "model"
+      scale: vehicle.scale,
+      position: [vehicle.position_x, vehicle.position_y, vehicle.position_z], // Regroupe en tableau
+      price: vehicle.price,
+    };
+
+    res.json(formattedVehicle);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur serveur." });
+  }
+});
+
 app.get("/question/:env", async (req, res) => {
   const { env } = req.params;
   try {

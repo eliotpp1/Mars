@@ -20,6 +20,7 @@ const Vehicles = () => {
   const rendererRef = useRef();
   const controlsRef = useRef();
   const modelsRef = useRef({});
+  const audioRef = useRef(null); // Référence pour le son
 
   const navigate = useNavigate();
 
@@ -261,6 +262,14 @@ const Vehicles = () => {
     setCurrentVehicle(unlockedIndexes[nextIndex]);
   };
 
+  const play = () => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.5; // Ajuste entre 0 (muet) et 1 (max)
+      audioRef.current.play();
+    }
+    setTimeout(() => navigate("/terre"), 1000);
+  };
+
   return (
     <div className="game-container">
       <h1>Choisissez un véhicule</h1>
@@ -293,12 +302,18 @@ const Vehicles = () => {
       </div>
       <button
         className="button button-primary"
-        onClick={() => navigate("/terre")}
+        onClick={() => play()}
         disabled={isLoading}
       >
         <Play size={24} />
         JOUER
       </button>
+      {/* 🎵 Élément audio caché */}
+      <audio
+        ref={audioRef}
+        src="/assets/sounds/start_game.mp3"
+        preload="auto"
+      />
     </div>
   );
 };
