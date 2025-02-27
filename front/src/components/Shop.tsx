@@ -20,6 +20,7 @@ const Shop = () => {
   });
 
   const starsRef = useRef(null);
+  const audioRef = useRef(null); // Référence pour le son
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,12 +66,16 @@ const Shop = () => {
       );
 
       alert(`Vous avez acheté : ${vehicle.name} !`);
+
+      // 🔊 Jouer le son avec volume réduit (ex: 50%)
+      if (audioRef.current) {
+        audioRef.current.volume = 0.5; // Ajuste entre 0 (muet) et 1 (max)
+        audioRef.current.play();
+      }
     } else {
       alert("Crédits insuffisants !");
     }
   };
-
-  console.log(vehicles.model);
 
   return (
     <div className="shop-container">
@@ -86,8 +91,8 @@ const Shop = () => {
                 src={
                   vehicle.model
                     ? vehicle.model
-                        .replace("/assets/models/", "/assets/images/") // Remplace le dossier
-                        .replace(".glb", ".PNG") // Remplace l'extension
+                        .replace("/assets/models/", "/assets/images/")
+                        .replace(".glb", ".PNG")
                     : "/assets/images/default.png"
                 }
                 alt={vehicle.name}
@@ -111,6 +116,9 @@ const Shop = () => {
       <button onClick={() => navigate("/vehicles")} className="back-button">
         Retour
       </button>
+
+      {/* 🎵 Élément audio caché */}
+      <audio ref={audioRef} src="/assets/sounds/reward.mp3" preload="auto" />
     </div>
   );
 };

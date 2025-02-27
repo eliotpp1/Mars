@@ -245,7 +245,6 @@ form {
 }
 
 .shop-item {
-  background: #1a1a1a;
   border-radius: 10px;
   padding: var(--spacing-small);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
@@ -260,8 +259,7 @@ form {
 }
 
 .shop-item.owned {
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0);
 }
 
 .shop-item-image {

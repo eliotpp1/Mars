@@ -20,11 +20,6 @@ function App() {
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-      <Canvas camera={{ position: [3, 0, 0] }}>
-        <ambientLight intensity={2} />
-        <pointLight position={[10, 10, 10]} />
-        <OrbitControls />
-      </Canvas>
     </Router>
   );
 }
