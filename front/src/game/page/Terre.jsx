@@ -8,6 +8,8 @@ const Terre = () => {
   const [monkeyFound, setMonkeyFound] = useState(false);
   const [answer, setAnswer] = useState("");
   const [frogFound, setFrogFound] = useState(false);
+  localStorage.setItem("environnement", "Terre");
+
 
   const handleAnswerSubmit = (e) => {
     e.preventDefault();
