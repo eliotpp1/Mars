@@ -4,9 +4,10 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
 import Home from "./components/Home";
+import Terre from "./game/page/Terre";
+import Scene2 from "./game/page/Atmosphere";
+import Scene3 from "./game/page/Space";
 import Vehicles from "./components/Vehicles";
 import Shop from "./components/Shop";
 
@@ -15,9 +16,11 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/terre" element={<Terre />} />
+        <Route path="/scene2" element={<Scene2 />} />
+        <Route path="/scene3" element={<Scene3 />} />
         <Route path="/vehicles" element={<Vehicles />} />
         <Route path="/shop" element={<Shop />} />
-
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>

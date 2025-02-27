@@ -293,7 +293,7 @@ const Vehicles = () => {
       </div>
       <button
         className="button button-primary"
-        onClick={() => navigate("/game")}
+        onClick={() => navigate("/terre")}
         disabled={isLoading}
       >
         <Play size={24} />
