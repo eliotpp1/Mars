@@ -253,7 +253,7 @@ export const Scene = ({ setBirdFound, setMonkeyFound, frogFound }) => {
       />
 
       <SceneObject
-        modelPath="/assets/models/terre.glb"
+        modelPath="/assets/models/terre/terre.glb"
         position={[18, -2, -4]}
         scale={2}
       />
@@ -268,7 +268,7 @@ export const Scene = ({ setBirdFound, setMonkeyFound, frogFound }) => {
       )}
 
       <SceneObject
-        modelPath="/assets/models/bird.glb"
+        modelPath="/assets/models/terre/bird.glb"
         position={[97, 20, -61]}
         scale={5}
         onClick={handleBirdClick}
@@ -277,21 +277,21 @@ export const Scene = ({ setBirdFound, setMonkeyFound, frogFound }) => {
       />
 
       <SceneObject
-        modelPath="/assets/models/snake.glb"
+        modelPath="/assets/models/terre/snake.glb"
         position={[65, 0.3, -35]}
         rotation={[0, 3, 0]}
         scale={3}
       />
 
       <SceneObject
-        modelPath="/assets/models/tiger.glb"
+        modelPath="/assets/models/terre/tiger.glb"
         position={[50, -2, -55]}
         rotation={[0, 1.4, 0]}
         scale={1.3}
       />
 
       <SceneObject
-        modelPath="/assets/models/singe.glb"
+        modelPath="/assets/models/terre/singe.glb"
         position={[38, -1.7, -22]}
         rotation={[0, Math.PI / 2, 0]}
         scale={5}
@@ -301,7 +301,7 @@ export const Scene = ({ setBirdFound, setMonkeyFound, frogFound }) => {
       />
 
       <SceneObject
-        modelPath="/assets/models/frog.glb"
+        modelPath="/assets/models/terre/frog.glb"
         position={[-50.5, 31.9, 25]}
         rotation={[-0.2, 4, 0]}
         scale={10}
@@ -309,7 +309,7 @@ export const Scene = ({ setBirdFound, setMonkeyFound, frogFound }) => {
       />
 
       <SceneObject
-        modelPath="/assets/models/rocket.glb"
+        modelPath="/assets/models/terre/rocket.glb"
         position={[0, 2, 0]}
         scale={10}
         onClick={launchRocket}
