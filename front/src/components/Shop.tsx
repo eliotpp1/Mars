@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
 import API_URL from "../constants/api";
@@ -9,7 +9,7 @@ const UNLOCKED_VEHICLES_KEY = "unlockedVehicles";
 
 const Shop = () => {
   const [vehicles, setVehicles] = useState([]);
-  const [credits, setCredits] = useState(() => {
+  const [mars, setMars] = useState(() => {
     return parseInt(localStorage.getItem(CREDITS_KEY), 10) || 100;
   });
   const [unlockedVehicles, setUnlockedVehicles] = useState(() => {
@@ -18,9 +18,10 @@ const Shop = () => {
     ) || [0];
     return Array.isArray(storedVehicles) ? storedVehicles : [0];
   });
+  const [message, setMessage] = useState(""); // Nouvel état pour le message
 
   const starsRef = useRef(null);
-  const audioRef = useRef(null); // Référence pour le son
+  const audioRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,34 +47,35 @@ const Shop = () => {
 
   const handlePurchase = (index) => {
     if (unlockedVehicles.includes(index)) {
-      alert(`Vous possédez déjà ce véhicule !`);
+      setMessage(`Vous possédez déjà ce véhicule !`);
+      setTimeout(() => setMessage(""), 3000); // Efface le message après 3 secondes
       return;
     }
 
     const vehicle = vehicles[index];
 
-    if (credits >= vehicle.price) {
-      const newCredits = credits - vehicle.price;
+    if (mars >= vehicle.price) {
+      const newMars = mars - vehicle.price;
       const updatedUnlocked = [...unlockedVehicles, index];
 
-      setCredits(newCredits);
+      setMars(newMars);
       setUnlockedVehicles(updatedUnlocked);
+      setMessage(`Vous avez acheté : ${vehicle.name} !`);
+      setTimeout(() => setMessage(""), 3000);
 
-      localStorage.setItem(CREDITS_KEY, newCredits.toString());
+      localStorage.setItem(CREDITS_KEY, newMars.toString());
       localStorage.setItem(
         UNLOCKED_VEHICLES_KEY,
         JSON.stringify(updatedUnlocked)
       );
 
-      alert(`Vous avez acheté : ${vehicle.name} !`);
-
-      // 🔊 Jouer le son avec volume réduit (ex: 50%)
       if (audioRef.current) {
-        audioRef.current.volume = 0.5; // Ajuste entre 0 (muet) et 1 (max)
+        audioRef.current.volume = 0.5;
         audioRef.current.play();
       }
     } else {
-      alert("Crédits insuffisants !");
+      setMessage("Mars insuffisants !");
+      setTimeout(() => setMessage(""), 3000);
     }
   };
 
@@ -81,7 +83,9 @@ const Shop = () => {
     <div className="shop-container">
       <div className="stars" ref={starsRef}></div>
       <h1>Boutique</h1>
-      <p>Crédits : {credits}</p>
+      <p>Mars : {mars}</p>
+      {message && <p className="shop-message">{message}</p>}{" "}
+      {/* Affichage du message */}
       <div className="shop-grid">
         {vehicles.map((vehicle, index) => {
           const isOwned = unlockedVehicles.includes(index);
@@ -98,9 +102,8 @@ const Shop = () => {
                 alt={vehicle.name}
                 className="shop-item-image"
               />
-
               <h3>{vehicle.name}</h3>
-              <p>Prix : {vehicle.price} crédits</p>
+              <p>Prix : {vehicle.price} Mars</p>
               <button
                 onClick={() => handlePurchase(index)}
                 disabled={isOwned}
@@ -116,8 +119,6 @@ const Shop = () => {
       <button onClick={() => navigate("/vehicles")} className="back-button">
         Retour
       </button>
-
-      {/* 🎵 Élément audio caché */}
       <audio ref={audioRef} src="/assets/sounds/reward.mp3" preload="auto" />
     </div>
   );
