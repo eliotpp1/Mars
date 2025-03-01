@@ -8,13 +8,51 @@ const Terre = () => {
   const [monkeyFound, setMonkeyFound] = useState(false);
   const [answer, setAnswer] = useState("");
   const [frogFound, setFrogFound] = useState(false);
+  const [errorCount, setErrorCount] = useState(0); // Compteur d'erreurs
+  const [message, setMessage] = useState(""); // Message d'erreur ou indice
+
   localStorage.setItem("environnement", "Terre");
 
+  // Fonction pour vérifier si l'orthographe est proche
+  const isSpellingClose = (input, target) => {
+    const cleanInput = input.toLowerCase().trim();
+    const cleanTarget = target.toLowerCase().trim();
+    if (cleanInput === cleanTarget) return false; // Exact match, pas une erreur proche
+    const distance = Math.abs(cleanInput.length - cleanTarget.length);
+    if (distance > 2) return false; // Trop différent
+    let differences = 0;
+    for (let i = 0; i < Math.min(cleanInput.length, cleanTarget.length); i++) {
+      if (cleanInput[i] !== cleanTarget[i]) differences++;
+      if (differences > 2) return false; // Trop d'erreurs
+    }
+    return true;
+  };
 
   const handleAnswerSubmit = (e) => {
     e.preventDefault();
-    if (answer.toLowerCase().trim() === "grenouille") {
+    const userAnswer = answer.toLowerCase().trim();
+
+    if (userAnswer === "grenouille" || userAnswer === "Grenouille") {
       setFrogFound(true);
+      setMessage("Bravo ! Tu as trouvé la grenouille !");
+      setErrorCount(0); // Réinitialiser le compteur
+    } else {
+      setErrorCount((prev) => prev + 1);
+      setAnswer(""); // Vider l'input
+
+      if (userAnswer === "crapaud") {
+        setMessage("Non, pas le crapaud, cherche la femelle !");
+      } else if (isSpellingClose(userAnswer, "grenouille")) {
+        setMessage("Tu es proche, mais vérifie l'orthographe ! Réessaie.");
+      } else {
+        if (errorCount === 0) {
+          setMessage("Mauvaise réponse ! Réessaie.");
+        } else if (errorCount === 1) {
+          setMessage("Encore faux ! Indice : c'est vert et ça saute.");
+        } else {
+          setMessage("Toujours pas ! Indice : ça commence par 'gren'.");
+        }
+      }
     }
   };
 
@@ -24,17 +62,22 @@ const Terre = () => {
         <div
           style={{
             position: "absolute",
+            backdropFilter: "blur(5px)",
             top: "20px",
             left: "50%",
+            display: "flex",
+            alignItems: "center",
+            flexDirection: "column",
             transform: "translateX(-50%)",
             background: "rgba(255, 255, 255, 0.8)",
-            padding: "10px 20px",
-            borderRadius: "5px",
+            boxShadow: "0px 0px 20px rgba(255, 255, 255, 0.3)",
+            padding: "20px",
+            borderRadius: "15px",
+            fontFamily: "Orbitron, sans-serif",
             zIndex: 1000,
-            fontFamily: "Arial, sans-serif",
           }}
         >
-          Trouve l'oiseau pour avancer !
+          Trouve l&apos;oiseau pour avancer !
         </div>
       )}
 
@@ -42,14 +85,19 @@ const Terre = () => {
         <div
           style={{
             position: "absolute",
+            backdropFilter: "blur(5px)",
             top: "20px",
             left: "50%",
+            display: "flex",
+            alignItems: "center",
+            flexDirection: "column",
             transform: "translateX(-50%)",
             background: "rgba(255, 255, 255, 0.8)",
-            padding: "10px 20px",
-            borderRadius: "5px",
+            boxShadow: "0px 0px 20px rgba(255, 255, 255, 0.3)",
+            padding: "20px",
+            borderRadius: "15px",
+            fontFamily: "Orbitron, sans-serif",
             zIndex: 1000,
-            fontFamily: "Arial, sans-serif",
           }}
         >
           Maintenant, trouve le singe caché !
@@ -60,17 +108,27 @@ const Terre = () => {
         <div
           style={{
             position: "absolute",
+            backdropFilter: "blur(5px)",
             top: "20px",
             left: "50%",
+            display: "flex",
+            alignItems: "center",
+            flexDirection: "column",
             transform: "translateX(-50%)",
-            background: "rgba(255, 255, 255, 0.8)",
-            padding: "10px 20px",
-            borderRadius: "5px",
+            borderRadius: "15px",
+            fontFamily: "Orbitron, sans-serif",
             zIndex: 1000,
-            fontFamily: "Arial, sans-serif",
           }}
         >
-          <form onSubmit={handleAnswerSubmit}>
+          <form
+            onSubmit={handleAnswerSubmit}
+            style={{
+              padding: "20px",
+              background: "rgba(255, 255, 255, 0.8)",
+              boxShadow: "0px 0px 20px rgba(255, 255, 255, 0.3)",
+              borderRadius: "15px",
+            }}
+          >
             <div style={{ textAlign: "center", marginBottom: "10px" }}>
               Quel animal se trouve au dessus de la cascade ?
             </div>
@@ -81,24 +139,35 @@ const Terre = () => {
               style={{
                 padding: "5px",
                 marginRight: "10px",
-                borderRadius: "3px",
-                border: "1px solid #ccc",
+                borderRadius: "10px",
+                border: "3px solid var(--yellow)",
+                textAlign: "center",
+                background: "rgba(83, 83, 83, 0.29)",
+
+                outline: "none",
+                fontFamily: "Orbitron, sans-serif",
+                // Ajout du style pour le placeholder
+                "::placeholder": {
+                  color: "black",
+                  opacity: 1, // Assure que la couleur est pleinement appliquée
+                },
               }}
               placeholder="Écris ta réponse..."
             />
-            <button
-              type="submit"
-              style={{
-                padding: "5px 10px",
-                borderRadius: "3px",
-                border: "none",
-                backgroundColor: "#4CAF50",
-                color: "white",
-                cursor: "pointer",
-              }}
-            >
+            <button type="submit" style={{}}>
               Valider
             </button>
+            {message && (
+              <div
+                style={{
+                  marginTop: "15px",
+                  color: errorCount > 0 ? "#ff4444" : "#4CAF50",
+                  textAlign: "center",
+                }}
+              >
+                {message}
+              </div>
+            )}
           </form>
         </div>
       )}
