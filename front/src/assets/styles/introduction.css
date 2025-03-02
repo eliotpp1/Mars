@@ -1,0 +1,45 @@
+/* Introduction.css */
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700&display=swap");
+
+.introduction-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    background-color: #000;
+    color: #fff;
+    padding: 20px;
+  }
+  .introduction-container p {
+    font-family: "Orbitron", sans-serif;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #ff9500;
+    border-radius: 10px;
+    padding: 20px;
+    color: #fff;
+    font-size: 2.5rem;
+    box-shadow: 0 0 20px rgba(255, 149, 0, 0.5);
+    transition: opacity 0.3s ease;
+
+  }
+  
+  .start-button {
+    margin-top: 20px;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    color: #fff;
+    background-color: #ff5722;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .start-button:hover {
+    background-color: #e64a19;
+  }
+  

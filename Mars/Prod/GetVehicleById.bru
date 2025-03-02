@@ -1,0 +1,15 @@
+meta {
+  name: GetVehicleById
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{prod}}vehicles/:id
+  body: none
+  auth: none
+}
+
+params:path {
+  id: 1
+}
