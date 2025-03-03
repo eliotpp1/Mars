@@ -20,7 +20,8 @@ const Vehicles = () => {
   const rendererRef = useRef();
   const controlsRef = useRef();
   const modelsRef = useRef({});
-  const audioRef = useRef(null); // Référence pour le son
+  const currentModelRef = useRef(null); // Référence au modèle actuel affiché
+  const audioRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -38,12 +39,10 @@ const Vehicles = () => {
         );
         const data = await response.json();
         if (Array.isArray(data) && data.length > 0) {
-          console.log("Véhicules récupérés:", data);
           setVehiclesApi(data);
-
           let unlocked = JSON.parse(
             localStorage.getItem(UNLOCKED_VEHICLES_KEY)
-          ) || [0]; // Retour à la normale : seul 0 est déverrouillé par défaut
+          ) || [0];
           if (!Array.isArray(unlocked)) {
             unlocked = [0];
             localStorage.setItem(
@@ -51,7 +50,6 @@ const Vehicles = () => {
               JSON.stringify(unlocked)
             );
           }
-
           const savedVehicle = parseInt(
             localStorage.getItem(SELECTED_VEHICLE_KEY),
             10
@@ -60,8 +58,6 @@ const Vehicles = () => {
             ? savedVehicle
             : unlocked[0];
           setCurrentVehicle(validVehicle);
-        } else {
-          console.warn("Aucun véhicule récupéré ou données invalides:", data);
         }
       } catch (error) {
         console.error("Erreur lors de la récupération des véhicules:", error);
@@ -91,7 +87,6 @@ const Vehicles = () => {
       unlocked.push(currentVehicle);
       localStorage.setItem(UNLOCKED_VEHICLES_KEY, JSON.stringify(unlocked));
     }
-    console.log("Véhicules déverrouillés:", unlocked);
   }, [currentVehicle]);
 
   const preloadModels = async () => {
@@ -112,16 +107,10 @@ const Vehicles = () => {
           group.position.sub(center);
           group.position.y += vehicle.position ? vehicle.position[1] : 0;
 
-          group.visible = false;
-          sceneRef.current.add(group);
-
           console.log(`Modèle chargé: ${vehicle.name} (index ${index})`);
           return { group, size: box.getSize(new THREE.Vector3()) };
         } catch (error) {
-          console.error(
-            `Erreur lors du chargement de ${vehicle.name} (index ${index}):`,
-            error
-          );
+          console.error(`Erreur lors du chargement de ${vehicle.name}:`, error);
           return null;
         }
       });
@@ -132,33 +121,25 @@ const Vehicles = () => {
           modelsRef.current[index] = model;
         }
       });
-
-      console.log(
-        "Modèles chargés dans modelsRef:",
-        Object.keys(modelsRef.current)
-      );
       setIsLoading(false);
       showCurrentModel(currentVehicle);
     } catch (error) {
-      console.error(
-        "Erreur générale lors du préchargement des modèles:",
-        error
-      );
+      console.error("Erreur lors du préchargement des modèles:", error);
       setIsLoading(false);
     }
   };
 
   const showCurrentModel = (index) => {
-    Object.values(modelsRef.current).forEach(({ group }) => {
-      if (group) {
-        group.visible = false;
-      }
-    });
+    // Retirer l'ancien modèle de la scène s'il existe
+    if (currentModelRef.current) {
+      sceneRef.current.remove(currentModelRef.current);
+    }
 
     const currentModel = modelsRef.current[index];
     if (currentModel) {
       const { group, size } = currentModel;
-      group.visible = true;
+      sceneRef.current.add(group);
+      currentModelRef.current = group;
 
       const maxDim = Math.max(size.x, size.y, size.z);
       const fov = cameraRef.current.fov * (Math.PI / 180);
@@ -171,8 +152,6 @@ const Vehicles = () => {
         controlsRef.current.target.set(0, 0, 0);
         controlsRef.current.update();
       }
-    } else {
-      console.warn(`Modèle introuvable pour l'index ${index}`);
     }
   };
 
@@ -232,6 +211,9 @@ const Vehicles = () => {
 
     initThree();
     return () => {
+      if (currentModelRef.current) {
+        sceneRef.current.remove(currentModelRef.current);
+      }
       if (containerRef.current && rendererRef.current) {
         containerRef.current.removeChild(rendererRef.current.domElement);
         rendererRef.current.dispose();
@@ -264,7 +246,7 @@ const Vehicles = () => {
 
   const play = () => {
     if (audioRef.current) {
-      audioRef.current.volume = 0.5; // Ajuste entre 0 (muet) et 1 (max)
+      audioRef.current.volume = 0.5;
       audioRef.current.play();
     }
     setTimeout(() => navigate("/terre"), 1000);
@@ -308,7 +290,6 @@ const Vehicles = () => {
         <Play size={24} />
         JOUER
       </button>
-      {/* 🎵 Élément audio caché */}
       <audio
         ref={audioRef}
         src="/assets/sounds/start_game.mp3"
