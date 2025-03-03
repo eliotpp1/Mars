@@ -2,6 +2,7 @@ import { Canvas } from "@react-three/fiber";
 import { Scene } from "./../scenes/Scene2";
 import { useGLTF } from "@react-three/drei";
 import { useState } from "react";
+import { use } from "react";
 
 const Atmosphere = () => {
   return (
@@ -17,4 +18,7 @@ export default Atmosphere;
 
 // Préchargement des modèles
 useGLTF.preload("/assets/models/vehicles/rocket.glb");
-useGLTF.preload("/assets/models/ciel.glb");
+useGLTF.preload("/assets/models/ciel/fish.glb");
+useGLTF.preload("/assets/models/ciel/plane.glb");
+useGLTF.preload("/assets/models/ciel/voiture.glb");
+useGLTF.preload("/assets/models/ciel/ciel.glb");
