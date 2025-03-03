@@ -14,7 +14,7 @@ const Introduction = () => {
   }, []);
 
   const startGame = () => {
-    navigate("/vehicles");
+    navigate("/Scene4.jsx");
   };
 
   return (

@@ -1,33 +1,17 @@
-import { useRef, useState, useEffect } from "react";
-import { gsap } from "gsap";
-import { Stars } from "../../components/Stars";
-import { SceneObject } from "../../components/SceneObject";
-import { CameraSetup } from "../../components/CameraSetup";
+import { useEffect } from "react";
+import { Html } from "@react-three/drei"; // Importer Html pour afficher des éléments HTML dans Three.js
+import SimonSays from "../../components/SimonSays"; 
 
-export const Scene = ({}) => {
-  useEffect(() => {}, []);
+export const Scene = () => {
+  useEffect(() => {
+    console.log("Scene2.jsx monté !");
+  }, []);
 
   return (
-    <>
-      <color attach="background" args={["#000020"]} />
-
-      <CameraSetup cameraPosition={[70, 5, -48]} />
-
-      <SceneObject
-        modelPath="/assets/models/ciel.glb"
-        position={[0, 0, 0]}
-        scale={10}
-      />
-
-      <SceneObject
-        modelPath="/assets/models/vehicles/rocket.glb"
-        position={[0, 2, 0]}
-        scale={10}
-      />
-
-      <ambientLight intensity={0.7} />
-      <pointLight position={[10, 10, 10]} intensity={1.5} />
-      <directionalLight position={[-5, 5, 5]} intensity={1} />
-    </>
+    <Html position={[0, 0, 0]} center> {/* Permet d'afficher le jeu correctement dans la scène */}
+      <SimonSays />
+    </Html>
   );
 };
+
+export default Scene;
