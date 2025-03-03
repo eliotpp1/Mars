@@ -7,6 +7,7 @@ import {
 import Home from "./components/Home";
 import Terre from "./game/page/Terre";
 import Scene2 from "./game/page/Atmosphere";
+import Scene3 from "./game/page/Space";
 import Lune from "./game/page/Lune";
 import Vehicles from "./components/Vehicles";
 import Shop from "./components/Shop";
@@ -18,6 +19,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/terre" element={<Terre />} />
         <Route path="/scene2" element={<Scene2 />} />
+        <Route path="/scene3" element={<Scene3 />} />
         <Route path="/lune" element={<Lune />} />
         <Route path="/vehicles" element={<Vehicles />} />
         <Route path="/shop" element={<Shop />} />

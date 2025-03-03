@@ -347,7 +347,7 @@ export const Scene = () => {
               duration: 4,
               ease: "power1.in",
               onComplete: () => {
-                  window.location.href = "/";
+                  window.location.href = "/Scene3";
               },
             });
           }
