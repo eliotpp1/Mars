@@ -4,10 +4,10 @@ import * as THREE from "three";
 
 export const Stars = () => {
   const starsRef = useRef();
-  
+
   const starGeometry = new THREE.BufferGeometry();
   const starMaterial = new THREE.PointsMaterial({
-    color: 0xFFFFFF,
+    color: 0xffffff,
     size: 0.1,
     transparent: true,
     opacity: 0.8,
@@ -22,7 +22,7 @@ export const Stars = () => {
   }
 
   starGeometry.setAttribute(
-    'position',
+    "position",
     new THREE.Float32BufferAttribute(starVertices, 3)
   );
 

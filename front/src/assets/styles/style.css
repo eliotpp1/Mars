@@ -350,3 +350,40 @@ form {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
+
+/* Lune */
+.overlay {
+  position: absolute;
+  top: 25%;
+  left: 25%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  font-family: "Orbitron", sans-serif;
+  z-index: 1000;
+}
+.overlay button {
+  margin: 5px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+.overlay button:hover {
+  background: #45a049;
+}
+.message {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-family: "Orbitron", sans-serif;
+  z-index: 1000;
+}

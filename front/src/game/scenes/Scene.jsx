@@ -5,7 +5,7 @@ import { SceneObject } from "../../components/SceneObject";
 import { AnimatedHuman } from "../../components/AnimatedHuman";
 import { CameraSetup } from "../../components/CameraSetup";
 import { useNavigate } from "react-router-dom";
-import  API_URL  from "../../constants/api";
+import API_URL from "../../constants/api";
 
 export const Scene = ({ setBirdFound, setMonkeyFound, frogFound }) => {
   const navigate = useNavigate();
@@ -21,22 +21,19 @@ export const Scene = ({ setBirdFound, setMonkeyFound, frogFound }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [cameraTarget, setCameraTarget] = useState([65, 0, -47]);
 
- useEffect(() => {
-  if (localStorage.getItem("selectedVehicle") === null) {
-    localStorage.setItem("selectedVehicle", 0);
-  }
-  fetchVehicle();
-}, []);
+  useEffect(() => {
+    if (localStorage.getItem("selectedVehicle") === null) {
+      localStorage.setItem("selectedVehicle", 0);
+    }
+    fetchVehicle();
+  }, []);
 
   const fetchVehicle = async () => {
-    let id = parseInt(localStorage.getItem("selectedVehicle"))+1;
-    const response = await fetch(
-      `${API_URL}/vehicles/${id}`
-    );
+    let id = parseInt(localStorage.getItem("selectedVehicle")) + 1;
+    const response = await fetch(`${API_URL}/vehicles/${id}`);
     const data = await response.json();
     setVehicle(data.model);
   };
-
 
   const tempCameraTarget = useRef({ x: 65, y: 0, z: -47 });
 
