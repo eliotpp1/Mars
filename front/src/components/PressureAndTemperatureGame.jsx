@@ -1,34 +1,41 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Html } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import "./../assets/styles/Game.css";
 
-const PressureAndTemperatureGame = () => {
+const PressureAndTemperatureGame = ({ onWin }) => {
   // Génération de valeurs aléatoires pour la pression et la température
   const getRandomPressure = () => Math.floor(Math.random() * 101); // Valeur aléatoire entre 0 et 100
   const getRandomTemperature = () => Math.floor(Math.random() * 101) - 50; // Valeur aléatoire entre -50 et 50
 
-  // Génération de cibles aléatoires pour la pression et la température
-  const getRandomPressureTarget = () => Math.floor(Math.random() * 101); // Valeur cible aléatoire entre 0 et 100
-  const getRandomTemperatureTarget = () => Math.floor(Math.random() * 101) - 50; // Valeur cible aléatoire entre -50 et 50
-
   // État pour la pression et la température
   const [pressure, setPressure] = useState(getRandomPressure()); // Initiale à une valeur aléatoire
   const [temperature, setTemperature] = useState(getRandomTemperature()); // Initiale à une valeur aléatoire
-  
+
   // Cibles aléatoires pour la pression et la température
-  const [pressureTarget] = useState(getRandomPressureTarget()); // Cible aléatoire pour la pression
-  const [temperatureTarget] = useState(getRandomTemperatureTarget()); // Cible aléatoire pour la température
+  const [pressureTarget] = useState(getRandomPressure()); // Cible aléatoire pour la pression
+  const [temperatureTarget] = useState(getRandomTemperature()); // Cible aléatoire pour la température
 
   const [isCorrect, setIsCorrect] = useState(false); // Pour vérifier si tout est correct
 
   // Fonction pour vérifier si les valeurs sont correctes
   const checkValues = () => {
-    if (Math.abs(pressure - pressureTarget) < 5 && Math.abs(temperature - temperatureTarget) < 5) {
+    const pressureIsCorrect = Math.abs(pressure - pressureTarget) < 5;
+    const temperatureIsCorrect = Math.abs(temperature - temperatureTarget) < 5;
+
+    if (pressureIsCorrect && temperatureIsCorrect) {
       setIsCorrect(true);
     } else {
       setIsCorrect(false);
     }
+  };
+
+  useEffect(() => {
+    checkValues();
+  }, [pressure, temperature]);
+
+  const handleWinClick = () => {
+    onWin(); // Notifie le jeu que le joueur a réussi
   };
 
   return (
@@ -48,7 +55,7 @@ const PressureAndTemperatureGame = () => {
               min="0"
               max="100"
               value={pressure}
-              onChange={(e) => setPressure(e.target.value)}
+              onChange={(e) => setPressure(Number(e.target.value))}
               onMouseUp={checkValues}
               className="slider"
             />
@@ -65,7 +72,7 @@ const PressureAndTemperatureGame = () => {
               min="-50"
               max="50"
               value={temperature}
-              onChange={(e) => setTemperature(e.target.value)}
+              onChange={(e) => setTemperature(Number(e.target.value))}
               onMouseUp={checkValues}
               className="slider"
             />
@@ -77,7 +84,7 @@ const PressureAndTemperatureGame = () => {
           {/* Bouton de résultat */}
           <div style={{ marginTop: '20px' }}>
             {isCorrect ? (
-              <button className="success-btn">Fusée prête pour le lancement !</button>
+              <button className="success-btn" onClick={handleWinClick}>Réparation Fini !</button>
             ) : (
               <button className="retry-btn" disabled>Réessayez</button>
             )}

@@ -1,6 +1,5 @@
 /* 🌌 Style général */
 body {
-    background: url("https://source.unsplash.com/1600x900/?galaxy,stars,space") no-repeat center center fixed;
     background-size: cover;
     color: #fff;
     font-family: 'Orbitron', sans-serif;
@@ -175,6 +174,14 @@ button:active {
 
 #root > div > div > div:nth-child(2) > div > div {
   all: unset !important; /* Réinitialiser tous les styles */
+  position: initial !important;
+  width: initial !important;
+  height: initial !important;
+  overflow: initial !important;
+  pointer-events: initial !important;
+}
+#root > div > div > div:nth-child(2) > div > div > div{
+all: unset !important; /* Réinitialiser tous les styles */
   position: initial !important;
   width: initial !important;
   height: initial !important;

@@ -64,7 +64,7 @@ const SimonSays = ({ onWin }) => {
     if (newUserPattern.length === pattern.length) {
       setIsListening(false);
       if (arraysAreEqual(newUserPattern, pattern)) {
-        setWinCount(winCount + 1);
+        setWinCount((prevCount) => prevCount + 1); // Mise à jour correcte de winCount
         setMessage(`✅ Succès ${winCount + 1}/3 ! Nouveau motif...`);
         setTimeout(generatePattern, 1000);
       } else {
