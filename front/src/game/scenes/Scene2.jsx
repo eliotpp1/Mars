@@ -6,44 +6,23 @@ import { SceneObject } from "../../components/SceneObject";
 import { CameraSetup } from "../../components/CameraSetup";
 import { SunRay } from "../../components/SunRay";
 
-// Composant d'objet interactif qui utilise SceneObject sans le modifier
-const InteractiveObject = ({ onClick, ...props }) => {
-  const groupRef = useRef();
-
-  return (
-    <group
-      ref={groupRef}
-      onClick={onClick}
-      onPointerOver={() => {
-        document.body.style.cursor = "pointer";
-      }}
-      onPointerOut={() => {
-        document.body.style.cursor = "auto";
-      }}
-    >
-      <SceneObject {...props} />
-    </group>
-  );
-};
-
 export const Scene = () => {
   const { camera } = useThree();
 
-  // États pour les mini-jeux
+  // Ajoute une nouvelle propriété dans gameState
   const [gameState, setGameState] = useState({
-    currentGame: 1, // 1: trouver l'avion, 2: rayon jaune, 3: chemin de souris
+    currentGame: 1,
     game1Completed: false,
     game2Completed: false,
     game3Completed: false,
     showPopup: false,
     popupMessage: "",
     showPathGame: false,
+    awaitingConfirmation: false, // Nouvelle étape
   });
 
-  // État pour gérer l'animation finale de la fusée
   const [isRocketAnimating, setIsRocketAnimating] = useState(false);
 
-  // Refs pour les éléments interactifs
   const planeRef = useRef();
   const rocketRef = useRef();
   const yellowRayBoxRef = useRef();
@@ -52,17 +31,11 @@ export const Scene = () => {
   const pathCanvasRef = useRef();
   const pathInitializedRef = useRef(false);
 
-  // Hauteur de départ des rayons
   const rayHeight = 200;
-
-  // Position de base pour les rayons - MODIFIÉE POUR ÊTRE À DROITE DE LA FUSÉE
-  const baseX = 150; // Valeur positive pour placer à droite (au lieu de -100)
-  const baseZ = 0;   // Ajusté pour aligner par rapport à la fusée (au lieu de -100)
-
-  // Espacement entre les rayons
+  const baseX = 150;
+  const baseZ = 0;
   const spacing = 50;
 
-  // Gestionnaires d'événements pour le jeu 1 (cliquer sur l'avion)
   const handlePlaneClick = () => {
     if (gameState.currentGame === 1 && !gameState.game1Completed) {
       setGameState((prev) => ({
@@ -74,7 +47,6 @@ export const Scene = () => {
         currentGame: 2,
       }));
 
-      // Animation de réussite pour l'avion
       gsap.to(planeRef.current.position, {
         y: planeRef.current.position.y + 20,
         duration: 1,
@@ -106,7 +78,6 @@ export const Scene = () => {
     }
   };
 
-  // Gestionnaires d'événements pour le jeu 2 (cliquer sur le rayon jaune)
   const handleYellowRayClick = () => {
     if (gameState.currentGame === 2 && !gameState.game2Completed) {
       setGameState((prev) => ({
@@ -131,7 +102,6 @@ export const Scene = () => {
     }
   };
 
-  // Fonctions utilitaires pour le jeu 3
   const generatePath = () => {
     const width = 500;
     const height = 300;
@@ -176,7 +146,6 @@ export const Scene = () => {
     return Math.sqrt(dx * dx + dy * dy);
   };
 
-  // Suivi de la fusée avec useFrame pour une animation fluide
   useFrame(() => {
     if (isRocketAnimating && rocketRef.current) {
       const targetCameraPosition = {
@@ -185,13 +154,11 @@ export const Scene = () => {
         z: rocketRef.current.position.z + 50,
       };
 
-      // Interpolation douce pour la position de la caméra
-      camera.position.lerp(targetCameraPosition, 0.05); // Ajustez la valeur pour plus ou moins de fluidité
+      camera.position.lerp(targetCameraPosition, 0.05);
       camera.lookAt(rocketRef.current.position);
     }
   });
 
-  // Gestion du jeu 3 avec effet
   useEffect(() => {
     if (gameState.showPathGame && !pathInitializedRef.current) {
       const timer = setTimeout(() => {
@@ -274,7 +241,7 @@ export const Scene = () => {
       ctx.stroke();
 
       ctx.fillStyle = "white";
-      ctx.font = "16px Arial";
+      ctx.font = "16px Orbitron";
       ctx.textAlign = "center";
       ctx.fillText(
         "Suivez le chemin du point vert au point rouge",
@@ -335,19 +302,27 @@ export const Scene = () => {
             game3Completed: true,
             showPopup: true,
             popupMessage:
-              "Félicitations ! Vous avez complété tous les défis et l'avion peut maintenant quitter l'atmosphère !",
+              "Félicitations ! Vous avez complété tous les défis. Cliquez sur Continuer pour quitter l'atmosphère !",
+            showPathGame: false,
+            awaitingConfirmation: true, // En attente de confirmation
           }));
 
           if (rocketRef.current) {
-            setIsRocketAnimating(true); // Activer le suivi de la caméra
+            setIsRocketAnimating(true);
+            setGameState((prev) => ({
+              ...prev,
+              showPopup: true,
+              showPathGame: false,
+            }));
 
-            // Animation GSAP pour la fusée uniquement
             gsap.to(rocketRef.current.position, {
               y: 500,
               duration: 4,
               ease: "power1.in",
               onComplete: () => {
+                setTimeout(() => {
                   window.location.href = "/";
+                }, 2000);
               },
             });
           }
@@ -388,21 +363,34 @@ export const Scene = () => {
     };
   };
 
-  // Gestion du popup
   const handleClosePopup = () => {
-    setGameState((prev) => ({
-      ...prev,
-      showPopup: false,
-    }));
+    setGameState((prev) => {
+      if (prev.awaitingConfirmation && rocketRef.current) {
+        setIsRocketAnimating(true);
+        gsap.to(rocketRef.current.position, {
+          y: 500,
+          duration: 4,
+          ease: "power1.in",
+          onComplete: () => {
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 2000);
+          },
+        });
+      }
+      return {
+        ...prev,
+        showPopup: false,
+        awaitingConfirmation: false,
+      };
+    });
   };
-
   return (
     <>
       <color attach="background" args={["#000020"]} />
 
       <CameraSetup cameraPosition={[70, 5, -48]} />
 
-      {/* Modèles 3D */}
       <SceneObject
         modelPath="/assets/models/ciel/ciel.glb"
         position={[0, 0, 0]}
@@ -414,7 +402,6 @@ export const Scene = () => {
         scale={300}
       />
 
-      {/* Objets interactifs pour le jeu 1 */}
       <group ref={planeRef} position={[50, 50, 0]} rotation={[0, 5, 0]}>
         <mesh
           visible={false}
@@ -473,7 +460,6 @@ export const Scene = () => {
         />
       </group>
 
-      {/* Rayons du soleil avec zones de clic séparées - MAINTENANT POSITIONNÉS À DROITE */}
       <group position={[baseX, rayHeight, baseZ]}>
         <mesh
           ref={yellowRayBoxRef}
@@ -543,80 +529,75 @@ export const Scene = () => {
         />
       </group>
 
-      {/* Éclairage de la scène */}
       <ambientLight intensity={4} />
       <pointLight position={[10, 10, 10]} intensity={1.5} />
       <directionalLight position={[-5, 5, 5]} intensity={1} />
 
-      {/* Interface utilisateur pour les jeux */}
       <Html fullscreen>
-        <div
-          style={{
-            position: "absolute",
-            top: "20px",
-            left: "20px",
-            color: "white",
-            backgroundColor: "rgba(0, 0, 0, 0.7)",
-            padding: "10px",
-            borderRadius: "5px",
-            fontFamily: "Arial, sans-serif",
-          }}
-        >
-          {gameState.currentGame === 1 && !gameState.game1Completed && (
-            <p>
-              Défi 1: Trouvez et cliquez sur l'objet qui est à sa place dans le
-              ciel
-            </p>
-          )}
-          {gameState.currentGame === 2 && !gameState.game2Completed && (
-            <p>Défi 2: Cliquez sur le rayon de soleil de la bonne couleur</p>
-          )}
-          {gameState.currentGame === 3 && !gameState.game3Completed && (
-            <p>
-              Défi 3: Suivez le chemin avec votre souris pour faire décoller
-              l'avion
-            </p>
-          )}
-          {gameState.game1Completed &&
-            gameState.game2Completed &&
-            gameState.game3Completed && (
-              <p>Félicitations ! Tous les défis sont complétés !</p>
-            )}
-        </div>
-
-        {gameState.showPopup && (
+        {!gameState.showPathGame && (
           <div
             style={{
               position: "absolute",
-              top: "50%",
+              backdropFilter: "blur(5px)",
+              top: "20px",
               left: "50%",
-              transform: "translate(-50%, -50%)",
-              backgroundColor: "rgba(0, 0, 0, 0.9)",
-              color: "white",
+              transform: "translateX(-50%)",
+              background: "rgba(255, 255, 255, 0.8)",
+              boxShadow: "0px 0px 20px rgba(255, 255, 255, 0.3)",
               padding: "20px",
-              borderRadius: "10px",
-              maxWidth: "400px",
-              textAlign: "center",
-              fontFamily: "Arial, sans-serif",
+              borderRadius: "15px",
+              fontFamily: "Orbitron, sans-serif",
               zIndex: 1000,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
             }}
           >
-            <p>{gameState.popupMessage}</p>
-            <button
-              onClick={handleClosePopup}
-              style={{
-                backgroundColor: "#4CAF50",
-                border: "none",
-                color: "white",
-                padding: "10px 20px",
-                textAlign: "center",
-                borderRadius: "5px",
-                cursor: "pointer",
-                marginTop: "10px",
-              }}
-            >
-              Continuer
-            </button>
+            {!gameState.showPopup ? (
+              <>
+                {gameState.currentGame === 1 && !gameState.game1Completed && (
+                  <p>
+                    Défi 1: Trouvez et cliquez sur l'objet qui est à sa place
+                    dans le ciel
+                  </p>
+                )}
+                {gameState.currentGame === 2 && !gameState.game2Completed && (
+                  <p>
+                    Défi 2: Cliquez sur le rayon de soleil de la bonne couleur
+                  </p>
+                )}
+                {gameState.currentGame === 3 && !gameState.game3Completed && (
+                  <p>
+                    Défi 3: Suivez le chemin avec votre souris pour faire
+                    décoller l'avion
+                  </p>
+                )}
+                {gameState.game1Completed &&
+                  gameState.game2Completed &&
+                  gameState.game3Completed && (
+                    <p>Félicitations ! Tous les défis sont complétés !</p>
+                  )}
+              </>
+            ) : (
+              <>
+                <p>{gameState.popupMessage}</p>
+                <button
+                  onClick={handleClosePopup}
+                  style={{
+                    backgroundColor: "#4CAF50",
+                    border: "none",
+                    color: "white",
+                    padding: "10px 20px",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    marginTop: "10px",
+                    fontFamily: "Orbitron, sans-serif",
+                  }}
+                >
+                  Continuer
+                </button>
+              </>
+            )}
           </div>
         )}
 
@@ -638,9 +619,7 @@ export const Scene = () => {
               ref={pathCanvasRef}
               width={500}
               height={300}
-              style={{
-                border: "2px solid white",
-              }}
+              style={{ border: "2px solid white" }}
             />
           </div>
         )}
