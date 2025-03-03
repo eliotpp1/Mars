@@ -408,6 +408,11 @@ export const Scene = () => {
         position={[0, 0, 0]}
         scale={10}
       />
+      <SceneObject
+        modelPath="/assets/models/ciel/planete.glb"
+        position={[0, -800, 0]}
+        scale={300}
+      />
 
       {/* Objets interactifs pour le jeu 1 */}
       <group ref={planeRef} position={[50, 50, 0]} rotation={[0, 5, 0]}>

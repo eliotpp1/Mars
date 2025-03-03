@@ -20,5 +20,6 @@ export default Atmosphere;
 useGLTF.preload("/assets/models/vehicles/rocket.glb");
 useGLTF.preload("/assets/models/ciel/fish.glb");
 useGLTF.preload("/assets/models/ciel/plane.glb");
+useGLTF.preload("/assets/models/ciel/planete.glb");
 useGLTF.preload("/assets/models/ciel/voiture.glb");
 useGLTF.preload("/assets/models/ciel/ciel.glb");
