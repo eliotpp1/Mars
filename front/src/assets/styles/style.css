@@ -132,6 +132,15 @@ button {
   position: relative;
   z-index: 1;
 }
+.three-html {
+  all: unset; /* Réinitialise tous les styles hérités */
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: auto !important;
+  height: auto !important;
+}
 
 button:hover {
   background: linear-gradient(90deg, var(--red), var(--yellow));

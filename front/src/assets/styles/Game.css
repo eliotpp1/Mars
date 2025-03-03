@@ -1,0 +1,183 @@
+/* 🌌 Style général */
+body {
+    background: url("https://source.unsplash.com/1600x900/?galaxy,stars,space") no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    text-align: center;
+}
+
+/* 🚀 Conteneur du jeu */
+.simon-says {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    backdrop-filter: blur(5px);
+}
+
+/* 🌟 Texte */
+h1 {
+    font-size: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.message {
+    font-size: 1.2rem;
+    margin: 10px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    color: white;
+}
+
+/* 🛰️ Grille du jeu */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 320px;
+    height: 320px;
+    margin: 20px 0;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+/* 🌟 Cases interactives */
+.cell {
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, #222, #000);
+    border: 2px solid #fff;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+/* 🔆 Effet au clic */
+.cell:hover {
+    transform: scale(1.1);
+}
+
+/* 🎇 Effet d'animation des cases */
+.cell.highlight {
+    background: radial-gradient(circle, #ff5722, #ff0000);
+    box-shadow: 0 0 20px #ff5722;
+}
+
+/* 🚀 Boutons */
+button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    background: #ff9800;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 152, 0, 0.8);
+    transition: all 0.3s ease-in-out;
+}
+
+/* 🌈 Style des boutons : au survol */
+button:hover {
+    background: #ff5722;
+    box-shadow: 0 0 15px rgba(255, 87, 34, 0.8);
+}
+
+/* 🔄 Bouton de victoire */
+button:active {
+    transform: scale(0.9);
+}
+
+/* 🌌 Améliorations pour le jeu de pression/température */
+.game-container {
+    text-align: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.7); /* Fond plus sombre pour améliorer le contraste */
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+h2 {
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    color: #ff9800; /* Or pour le titre */
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 1.2rem;
+    margin: 10px;
+    display: inline-block;
+    color: #fff; /* Texte clair */
+}
+
+input[type="range"] {
+    width: 80%;
+    margin: 10px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    appearance: none;
+    height: 8px;
+    transition: all 0.2s ease;
+}
+
+input[type="range"]:focus {
+    outline: none;
+    border: 2px solid #ff5722;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #ff5722;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 87, 34, 0.8);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #ff5722;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 87, 34, 0.8);
+}
+
+button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    background: #28a745; /* Vert pour le succès */
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.6);
+}
+
+button[disabled] {
+    background: #dc3545; /* Rouge pour le bouton désactivé */
+    cursor: not-allowed;
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+#root > div > div > div:nth-child(2) > div > div {
+  all: unset !important; /* Réinitialiser tous les styles */
+  position: initial !important;
+  width: initial !important;
+  height: initial !important;
+  overflow: initial !important;
+  pointer-events: initial !important;
+}

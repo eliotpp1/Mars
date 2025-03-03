@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import "./../assets/styles/SimonSays.css";
+import "./../assets/styles/Game.css";
 
-const SimonSays = () => {
+const SimonSays = ({ onWin }) => {
   const [pattern, setPattern] = useState([]);
   const [userPattern, setUserPattern] = useState([]);
   const [isListening, setIsListening] = useState(false);
@@ -19,6 +19,7 @@ const SimonSays = () => {
     if (winCount >= 2) {
       setGameOver(true);
       setMessage("🚀 Mission réussie ! Vous avez gagné ! 🌌");
+      onWin(); // Notifie le jeu que Simon Says est terminé et réussi
       return;
     }
 
