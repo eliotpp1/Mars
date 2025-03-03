@@ -17,6 +17,7 @@ export const Scene = () => {
   const [line2Success, setLine2Success] = useState(false);
   const [currentLine, setCurrentLine] = useState(null);
   const [showDialogue, setShowDialogue] = useState(true); // État pour contrôler l'affichage du dialogue
+  const [isRocketRepaired, setIsRocketRepaired] = useState(false); // État pour suivre si la fusée est réparée
 
   const handleTextClick = (lineNumber) => {
     setCurrentLine(lineNumber);
@@ -35,11 +36,31 @@ export const Scene = () => {
     }
     setShowGame(false);
     setShowPressureGame(false);
+
+    // Vérifier si les deux lignes sont réussies
+    if (line1Success && line2Success) {
+      setIsRocketRepaired(true);
+    }
   };
 
   const closeDialogue = () => {
     setShowDialogue(false);
   };
+
+  const handleRocketClick = () => {
+    // Vérifiez que les deux lignes ont été réparées avant de permettre le décollage
+    if (isRocketRepaired) {
+      alert("La fusée décolle ! 🚀");
+      // Ajoutez ici la logique pour faire décoller la fusée
+    }
+  };
+
+  useEffect(() => {
+    // Vérifie dès que les lignes sont toutes réussies si la fusée peut être réparée
+    if (line1Success && line2Success) {
+      setIsRocketRepaired(true);
+    }
+  }, [line1Success, line2Success]);
 
   return (
     <>
@@ -52,6 +73,7 @@ export const Scene = () => {
         modelPath="/assets/models/vehicles/rocket.glb"
         position={[0, 2, 0]}
         scale={10}
+        onClick={handleRocketClick} // Ajoutez l'événement onClick pour la fusée
       />
 
       {/* Ligne 1 */}
@@ -99,6 +121,13 @@ export const Scene = () => {
           message="Attention ! La fusée a un problème et doit être réparée avant de pouvoir repartir. Vous devez résoudre les problèmes de pression et de température pour assurer un lancement sécurisé."
           onClose={closeDialogue}
         />
+      )}
+
+      {isRocketRepaired && (
+       <GameDialogue
+       message="Félicitations ! La fusée est réparée et prête à décoller ! Cliquez sur la fusée pour la faire décoller."
+       onClose={closeDialogue}
+     />
       )}
 
       {showGame && (
