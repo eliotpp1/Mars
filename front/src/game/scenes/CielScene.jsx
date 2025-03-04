@@ -276,23 +276,6 @@ export const Scene = () => {
             showPathGame: false,
             awaitingConfirmation: true,
           }));
-<<<<<<< HEAD:front/src/game/scenes/Scene2.jsx
-
-          if (rocketRef.current) {
-            setIsRocketAnimating(true); // Activer le suivi de la caméra
-
-            // Animation GSAP pour la fusée uniquement
-            gsap.to(rocketRef.current.position, {
-              y: 500,
-              duration: 4,
-              ease: "power1.in",
-              onComplete: () => {
-                  window.location.href = "/Scene3";
-              },
-            });
-          }
-=======
->>>>>>> Atmosphèrecreation:front/src/game/scenes/CielScene.jsx
         }
       } else {
         if (mouseOnPath) {
