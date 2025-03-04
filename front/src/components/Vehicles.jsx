@@ -1,3 +1,4 @@
+// src/components/Vehicles.jsx
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, ShoppingBag, Play } from "lucide-react";
@@ -5,6 +6,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { generateStars } from "../hooks/generateStars";
+import { useSound } from "../context/SoundContext"; // Importer le contexte sonore
 
 const SELECTED_VEHICLE_KEY = "selectedVehicle";
 const UNLOCKED_VEHICLES_KEY = "unlockedVehicles";
@@ -20,10 +22,12 @@ const Vehicles = () => {
   const rendererRef = useRef();
   const controlsRef = useRef();
   const modelsRef = useRef({});
-  const currentModelRef = useRef(null); // Référence au modèle actuel affiché
-  const audioRef = useRef(null);
+  const currentModelRef = useRef(null);
+  const audioRef = useRef(null); // Pour le son de démarrage
+  const clickSoundRef = useRef(new Audio("/assets/sounds/click.mp3")); // Son de clic
 
   const navigate = useNavigate();
+  const { isMuted } = useSound(); // Utiliser le contexte pour gérer le mute
 
   useEffect(() => {
     if (starsRef.current) {
@@ -130,7 +134,6 @@ const Vehicles = () => {
   };
 
   const showCurrentModel = (index) => {
-    // Retirer l'ancien modèle de la scène s'il existe
     if (currentModelRef.current) {
       sceneRef.current.remove(currentModelRef.current);
     }
@@ -233,13 +236,23 @@ const Vehicles = () => {
 
   const currentIndex = unlockedIndexes.indexOf(currentVehicle);
 
+  // Fonction pour jouer le son de clic
+  const playClickSound = () => {
+    if (!isMuted) {
+      clickSoundRef.current.currentTime = 0; // Réinitialiser pour éviter le chevauchement
+      clickSoundRef.current.play();
+    }
+  };
+
   const goToPrevious = () => {
+    playClickSound(); // Jouer le son au clic
     const prevIndex =
       (currentIndex - 1 + unlockedIndexes.length) % unlockedIndexes.length;
     setCurrentVehicle(unlockedIndexes[prevIndex]);
   };
 
   const goToNext = () => {
+    playClickSound(); // Jouer le son au clic
     const nextIndex = (currentIndex + 1) % unlockedIndexes.length;
     setCurrentVehicle(unlockedIndexes[nextIndex]);
   };
@@ -252,17 +265,15 @@ const Vehicles = () => {
     setTimeout(() => navigate("/terre"), 1000);
   };
 
+  const goToShop = () => {
+    playClickSound(); // Jouer le son au clic sur "Boutique"
+    navigate("/shop");
+  };
+
   return (
     <div className="game-container">
       <h1>Choisissez un véhicule</h1>
       <div className="stars" ref={starsRef}></div>
-      <button
-        className="button button-secondary shop-button"
-        onClick={() => navigate("/shop")}
-      >
-        <ShoppingBag size={24} />
-        <span>Boutique</span>
-      </button>
       <div className="vehicle-selector">
         <button
           className="button button-circular"
@@ -282,14 +293,27 @@ const Vehicles = () => {
           <ChevronRight size={32} />
         </button>
       </div>
-      <button
-        className="button button-primary"
-        onClick={() => play()}
-        disabled={isLoading}
-      >
-        <Play size={24} />
-        JOUER
-      </button>
+      <div className="vehicle-info">
+        <h2>{vehiclesApi[currentVehicle]?.name}</h2>
+      </div>
+      <div className="buttonHomeContainer">
+        <button
+          className="button button-primary"
+          onClick={play}
+          disabled={isLoading}
+        >
+          <Play size={24} />
+          JOUER
+        </button>
+        <button
+          className="button button-secondary shop-button"
+          onClick={goToShop} // Nouvelle fonction avec son
+        >
+          <ShoppingBag size={24} />
+          <span>Boutique</span>
+        </button>
+      </div>
+
       <audio
         ref={audioRef}
         src="/assets/sounds/start_game.mp3"
