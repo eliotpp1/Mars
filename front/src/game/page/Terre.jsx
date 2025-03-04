@@ -8,22 +8,23 @@ const Terre = () => {
   const [monkeyFound, setMonkeyFound] = useState(false);
   const [answer, setAnswer] = useState("");
   const [frogFound, setFrogFound] = useState(false);
-  const [errorCount, setErrorCount] = useState(0); // Compteur d'erreurs
-  const [message, setMessage] = useState(""); // Message d'erreur ou indice
+  const [q1Found, setQ1Found] = useState(false); // État pour le premier QCM
+  const [q2Found, setQ2Found] = useState(false); // État pour le deuxième QCM
+  const [errorCount, setErrorCount] = useState(0);
+  const [message, setMessage] = useState("");
 
   localStorage.setItem("environnement", "Terre");
 
-  // Fonction pour vérifier si l'orthographe est proche
   const isSpellingClose = (input, target) => {
     const cleanInput = input.toLowerCase().trim();
     const cleanTarget = target.toLowerCase().trim();
-    if (cleanInput === cleanTarget) return false; // Exact match, pas une erreur proche
+    if (cleanInput === cleanTarget) return false;
     const distance = Math.abs(cleanInput.length - cleanTarget.length);
-    if (distance > 2) return false; // Trop différent
+    if (distance > 2) return false;
     let differences = 0;
     for (let i = 0; i < Math.min(cleanInput.length, cleanTarget.length); i++) {
       if (cleanInput[i] !== cleanTarget[i]) differences++;
-      if (differences > 2) return false; // Trop d'erreurs
+      if (differences > 2) return false;
     }
     return true;
   };
@@ -35,10 +36,10 @@ const Terre = () => {
     if (userAnswer === "grenouille" || userAnswer === "Grenouille") {
       setFrogFound(true);
       setMessage("Bravo ! Tu as trouvé la grenouille !");
-      setErrorCount(0); // Réinitialiser le compteur
+      setErrorCount(0);
     } else {
       setErrorCount((prev) => prev + 1);
-      setAnswer(""); // Vider l'input
+      setAnswer("");
 
       if (userAnswer === "crapaud") {
         setMessage("Non, pas le crapaud, cherche la femelle !");
@@ -53,6 +54,24 @@ const Terre = () => {
           setMessage("Toujours pas ! Indice : ça commence par 'gren'.");
         }
       }
+    }
+  };
+
+  const handleQ1Submit = (selectedAnswer) => {
+    if (selectedAnswer === "oxygène") {
+      setQ1Found(true);
+      setMessage("Correct ! Que respirent les humains ? Oxygène !");
+    } else {
+      setMessage("Faux ! Réessaie.");
+    }
+  };
+
+  const handleQ2Submit = (selectedAnswer) => {
+    if (selectedAnswer === "8 milliards") {
+      setQ2Found(true);
+      setMessage("Correct ! La population est d'environ 8 milliards !");
+    } else {
+      setMessage("Faux ! Réessaie.");
     }
   };
 
@@ -77,7 +96,7 @@ const Terre = () => {
             zIndex: 1000,
           }}
         >
-          Trouve l&apos;oiseau pour avancer !
+          Trouve l'oiseau pour avancer !
         </div>
       )}
 
@@ -143,20 +162,12 @@ const Terre = () => {
                 border: "3px solid var(--yellow)",
                 textAlign: "center",
                 background: "rgba(83, 83, 83, 0.29)",
-
                 outline: "none",
                 fontFamily: "Orbitron, sans-serif",
-                // Ajout du style pour le placeholder
-                "::placeholder": {
-                  color: "black",
-                  opacity: 1, // Assure que la couleur est pleinement appliquée
-                },
               }}
               placeholder="Écris ta réponse..."
             />
-            <button type="submit" style={{}}>
-              Valider
-            </button>
+            <button type="submit">Valider</button>
             {message && (
               <div
                 style={{
@@ -172,7 +183,79 @@ const Terre = () => {
         </div>
       )}
 
-      {frogFound && (
+      {frogFound && !q1Found && (
+        <div
+          style={{
+            position: "absolute",
+            top: "20px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "rgba(255, 255, 255, 0.8)",
+            padding: "20px",
+            borderRadius: "15px",
+            fontFamily: "Orbitron, sans-serif",
+            zIndex: 1000,
+          }}
+        >
+          <div style={{ textAlign: "center", marginBottom: "10px" }}>
+            Que respirent les humains pour vivre ?
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <button onClick={() => handleQ1Submit("oxygène")}>Oxygène</button>
+            <button onClick={() => handleQ1Submit("azote")}>Azote</button>
+            <button onClick={() => handleQ1Submit("carbone")}>Carbone</button>
+          </div>
+          {message && (
+            <div
+              style={{
+                marginTop: "15px",
+                color: q1Found ? "#4CAF50" : "#ff4444",
+                textAlign: "center",
+              }}
+            >
+              {message}
+            </div>
+          )}
+        </div>
+      )}
+
+      {q1Found && !q2Found && (
+        <div
+          style={{
+            position: "absolute",
+            top: "20px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "rgba(255, 255, 255, 0.8)",
+            padding: "20px",
+            borderRadius: "15px",
+            fontFamily: "Orbitron, sans-serif",
+            zIndex: 1000,
+          }}
+        >
+          <div style={{ textAlign: "center", marginBottom: "10px" }}>
+            Combien d'habitants y a-t-il sur Terre environ ?
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <button onClick={() => handleQ2Submit("8 milliards")}>8 milliards</button>
+            <button onClick={() => handleQ2Submit("5 millions")}>5 millions</button>
+            <button onClick={() => handleQ2Submit("12 milliards")}>12 milliards</button>
+          </div>
+          {message && (
+            <div
+              style={{
+                marginTop: "15px",
+                color: q2Found ? "#4CAF50" : "#ff4444",
+                textAlign: "center",
+              }}
+            >
+              {message}
+            </div>
+          )}
+        </div>
+      )}
+
+      {q2Found && (
         <div
           style={{
             position: "absolute",
@@ -186,7 +269,7 @@ const Terre = () => {
             fontFamily: "Arial, sans-serif",
           }}
         >
-          Bravo ! Tu as trouvé la grenouille !
+          Clique sur la fusée pour continuer !
         </div>
       )}
 
@@ -195,6 +278,8 @@ const Terre = () => {
           setBirdFound={setBirdFound}
           setMonkeyFound={setMonkeyFound}
           frogFound={frogFound}
+          q1Found={q1Found}
+          q2Found={q2Found}
         />
       </Canvas>
     </div>
@@ -203,7 +288,6 @@ const Terre = () => {
 
 export default Terre;
 
-// Préchargement des modèles
 useGLTF.preload("/assets/models/terre/terre.glb");
 useGLTF.preload("/assets/models/terre/bird.glb");
 useGLTF.preload("/assets/models/terre/monkey.glb");

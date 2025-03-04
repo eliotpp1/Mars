@@ -7,7 +7,7 @@ import { CameraSetup } from "../../components/CameraSetup";
 import { useNavigate } from "react-router-dom";
 import API_URL from "../../constants/api";
 
-export const Scene = ({ setBirdFound, setMonkeyFound, frogFound }) => {
+export const Scene = ({ setBirdFound, setMonkeyFound, frogFound, q1Found, q2Found }) => {
   const navigate = useNavigate();
   const cameraRef = useRef();
   const birdRef = useRef();
@@ -246,7 +246,7 @@ export const Scene = ({ setBirdFound, setMonkeyFound, frogFound }) => {
   };
 
   const launchRocket = () => {
-    if (!launched) {
+    if (!launched && q1Found && q2Found) { // La fusée ne se lance que si les deux QCM sont réussis
       setLaunched(true);
       gsap.to(rocketRef.current.position, {
         y: 30,
