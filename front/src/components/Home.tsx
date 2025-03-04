@@ -1,11 +1,15 @@
+// src/components/Home.jsx
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { generateStars } from "../hooks/generateStars";
+import { useSound } from "../context/SoundContext"; // Importer le contexte sonore
 
 const Home = () => {
   const [name, setName] = useState("");
   const navigate = useNavigate();
-  const starsRef = useRef(null); // Référence pour le conteneur des étoiles
+  const starsRef = useRef(null);
+  const clickSound = new Audio("/assets/sounds/click.mp3");
+  const { isMuted } = useSound(); // Utiliser le contexte pour gérer l'état muted
 
   useEffect(() => {
     generateStars(starsRef.current);
@@ -13,6 +17,7 @@ const Home = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!isMuted) clickSound.play(); // Jouer le son uniquement si pas muted
     if (name.trim()) {
       localStorage.setItem("playerName", name);
 
@@ -27,7 +32,7 @@ const Home = () => {
 
   return (
     <div className="home-container">
-      <div className="stars" ref={starsRef}></div> {/* Conteneur des étoiles */}
+      <div className="stars" ref={starsRef}></div>
       <h1>Bienvenue !</h1>
       <form onSubmit={handleSubmit}>
         <input
