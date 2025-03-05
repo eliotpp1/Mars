@@ -297,11 +297,7 @@ const Vehicles = () => {
         <h2>{vehiclesApi[currentVehicle]?.name}</h2>
       </div>
       <div className="buttonHomeContainer">
-        <button
-          className="button button-primary"
-          onClick={play}
-          disabled={isLoading}
-        >
+        <button className="button button-primary" onClick={play}>
           <Play size={24} />
           JOUER
         </button>

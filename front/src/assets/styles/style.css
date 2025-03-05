@@ -307,6 +307,7 @@ form {
   position: absolute;
   top: 20px;
   left: 50%;
+  color: var(--dark-dark-blue);
   transform: translateX(-50%);
   background-color: rgba(
     255,
@@ -374,14 +375,18 @@ form {
   margin: 5px;
   padding: 10px 20px;
   border-radius: 10px;
+  color: black;
   background: linear-gradient(90deg, var(--yellow), var(--red));
-  color: white;
   border: none;
   cursor: pointer;
 }
 .overlay button:hover {
   background: linear-gradient(90deg, var(--red), var(--yellow));
   transform: scale(1.1);
+}
+
+.overlay .asteroid-gauge {
+  background: inherit; /* ou laissez le inline prendre le contrôle */
 }
 
 .quiz-answers {
@@ -394,6 +399,7 @@ form {
   position: absolute;
   top: 20px;
   left: 50%;
+  color: var(--dark-dark-blue);
   transform: translateX(-50%);
   background: rgba(255, 255, 255, 0.8);
   padding: 10px 20px;

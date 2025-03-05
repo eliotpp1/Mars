@@ -1,31 +1,34 @@
-// src/game/page/Lune.jsx
 import { Canvas } from "@react-three/fiber";
 import { Scene } from "../scenes/LuneScene";
 import { useGLTF } from "@react-three/drei";
 import API_URL from "../../constants/api";
 import { useState, useEffect } from "react";
 import { useSound } from "../../context/SoundContext";
+import { color } from "three/src/nodes/TSL.js";
 
 const Lune = () => {
   const [step, setStep] = useState(0);
   const [selectedPlanet, setSelectedPlanet] = useState(null);
   const [quiz1Answer, setQuiz1Answer] = useState(null);
   const [quiz1Data, setQuiz1Data] = useState(null);
-  const [selectedFlag, setSelectedFlag] = useState(null);
+  const [uprootedFlags, setUprootedFlags] = useState([]);
   const [quiz2Answer, setQuiz2Answer] = useState(null);
   const [quiz2Data, setQuiz2Data] = useState(null);
   const [threatDestroyed, setThreatDestroyed] = useState(false);
   const [message, setMessage] = useState("");
   const [hasLanded, setHasLanded] = useState(false);
   const [hasStartedLanding, setHasStartedLanding] = useState(false);
-  const [asteroidGauge, setAsteroidGauge] = useState(0); // Jauge en pourcentage (0 à 100)
-  const maxGauge = 100; // Valeur maximale de la jauge
+  const [asteroidGauge, setAsteroidGauge] = useState(0);
+  const maxGauge = 100;
+  const [lastClickTime, setLastClickTime] = useState(0); // Pour debounce du son
 
   const { isMuted } = useSound();
 
   const landingSound = new Audio("/assets/sounds/landing.mp3");
   const clickSound = new Audio("/assets/sounds/click.mp3");
   const errorSound = new Audio("/assets/sounds/error.mp3");
+  const correctSound = new Audio("/assets/sounds/correct.mp3");
+  const destroySound = new Audio("/assets/sounds/destroySpace.mp3");
 
   useEffect(() => {
     const fetchQuestion = () =>
@@ -53,13 +56,12 @@ const Lune = () => {
     });
   }, []);
 
-  // Diminution progressive de la jauge au step 5
   useEffect(() => {
     let interval;
     if (step === 5 && !threatDestroyed) {
       interval = setInterval(() => {
         setAsteroidGauge((prev) => {
-          const newGauge = Math.max(prev - 2, 0); // Diminue de 2% toutes les 100ms
+          const newGauge = Math.max(prev - 2, 0);
           if (newGauge === 0 && prev > 0) {
             setMessage(
               "La jauge est vide ! Clique plus vite sur l'astéroïde !"
@@ -67,9 +69,9 @@ const Lune = () => {
           }
           return newGauge;
         });
-      }, 100); // Diminution toutes les 100ms
+      }, 100);
     }
-    return () => clearInterval(interval); // Nettoyage de l'intervalle
+    return () => clearInterval(interval);
   }, [step, threatDestroyed]);
 
   const startLanding = () => {
@@ -92,9 +94,26 @@ const Lune = () => {
     if (!isMuted) errorSound.play();
   };
 
+  const playCorrectSound = () => {
+    if (!isMuted) correctSound.play();
+  };
+
+  const playDestroySound = () => {
+    if (!isMuted) {
+      const now = Date.now();
+      if (now - lastClickTime > 100) {
+        // Délai de 100ms entre les sons
+        destroySound.pause(); // Arrête le son en cours
+        destroySound.currentTime = 0; // Réinitialise au début
+        destroySound.play(); // Joue immédiatement
+        setLastClickTime(now); // Met à jour le temps du dernier clic
+      }
+    }
+  };
+
   const handlePlanetSelection = (planet) => {
-    playClickSound();
     if (planet === "Terre") {
+      playCorrectSound();
       setMessage("Bravo, tu as identifié la Terre depuis la Lune !");
       setTimeout(() => setStep(2), 1500);
     } else {
@@ -106,7 +125,7 @@ const Lune = () => {
 
   const handleQuiz1Submit = (answer) => {
     if (answer === quiz1Data?.reponse_correcte) {
-      playClickSound();
+      playCorrectSound();
       setMessage("Bonne réponse ! Tu progresses dans notre mission lunaire.");
       setTimeout(() => setStep(3), 1500);
     } else {
@@ -116,21 +135,35 @@ const Lune = () => {
     setQuiz1Answer(answer);
   };
 
-  const handleFlagSelection = (flag) => {
+  const handleFlagUproot = (flag) => {
     if (flag === "USA") {
-      playClickSound();
-      setMessage("Correct ! Les USA ont marqué l'histoire lunaire en premier.");
-      setTimeout(() => setStep(4), 1500);
-    } else {
-      setMessage("Non, ce drapeau n'a pas été planté sur la Lune !");
       playErrorSound();
+      setMessage("Non, ce drapeau doit rester !");
+    } else {
+      playClickSound();
+      setUprootedFlags((prev) => {
+        console.log("Drapeaux actuels :", prev);
+        if (prev.includes(flag)) {
+          return prev;
+        }
+        const newFlags = [...prev, flag];
+        console.log("Nouveaux drapeaux :", newFlags);
+        if (newFlags.length === 3) {
+          setMessage(
+            "Correct ! Ce sont les Américains qui ont été les premiers sur la Lune."
+          );
+          setTimeout(() => setStep(4), 1500);
+        } else {
+          setMessage(`Drapeau ${flag} déraciné ! Continue...`);
+        }
+        return newFlags;
+      });
     }
-    setSelectedFlag(flag);
   };
 
   const handleQuiz2Submit = (answer) => {
     if (answer === quiz2Data?.reponse_correcte) {
-      playClickSound();
+      playCorrectSound();
       setMessage("Super ! La Lune n'a plus de secrets pour toi.");
       setTimeout(() => setStep(5), 1500);
     } else {
@@ -142,9 +175,9 @@ const Lune = () => {
 
   const handleThreatClick = (object) => {
     if (object === "asteroid") {
-      playClickSound();
+      playDestroySound();
       setAsteroidGauge((prev) => {
-        const newGauge = Math.min(prev + 10, maxGauge); // Chaque clic ajoute 5%
+        const newGauge = Math.min(prev + 10, maxGauge);
         if (newGauge === maxGauge) {
           setThreatDestroyed(true);
           setMessage(
@@ -152,7 +185,7 @@ const Lune = () => {
           );
         } else {
           setMessage(
-            `Clique vite pour remplir la jauge avant qu'elle ne baisse !`
+            "Clique vite pour remplir la jauge avant qu'elle ne baisse !"
           );
         }
         return newGauge;
@@ -202,11 +235,10 @@ const Lune = () => {
       )}
       {step === 3 && (
         <div className="overlay">
-          <h2>Quel drapeau a été planté en premier sur la Lune ?</h2>
-          <button onClick={() => handleFlagSelection("France")}>France</button>
-          <button onClick={() => handleFlagSelection("USA")}>USA</button>
-          <button onClick={() => handleFlagSelection("Russie")}>Russie</button>
-          <button onClick={() => handleFlagSelection("Chine")}>Chine</button>
+          <h2>Déracine les mauvais drapeaux sur la Lune !</h2>
+          <p style={{ color: "var(--dark-dark-blue)" }}>
+            (Laisse celui qui a été planté en premier)
+          </p>
         </div>
       )}
       {step === 4 && quiz2Data && (
@@ -229,30 +261,55 @@ const Lune = () => {
         </div>
       )}
       {step === 5 && !threatDestroyed && (
-        <div className="overlay">
+        <div
+          className="overlay"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <h2>
-            Une menace approche ! Clique vite sur l'astéroïde pour le détruire :
+            Une menace approche ! Clique vite sur l'objet qui pourrait détruire
+            la lune :
           </h2>
-          <div style={{ marginTop: "10px" }}>
+          <div
+            style={{
+              width: "200px",
+              height: "20px",
+              backgroundColor: "#333",
+              border: "2px solid white",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
             <div
               style={{
-                width: "200px",
-                height: "20px",
-                border: "2px solid white",
-                background: "#333",
+                width: `${(asteroidGauge / maxGauge) * 100}%`,
+                height: "100%",
+                backgroundColor:
+                  asteroidGauge < 33
+                    ? "red"
+                    : asteroidGauge < 66
+                    ? "orange"
+                    : "green",
+                position: "absolute",
+                top: 0,
+                left: 0,
+                transition: "width 0.1s linear, background-color 0.3s ease",
               }}
-            >
-              <div
-                style={{
-                  width: `${(asteroidGauge / maxGauge) * 100}%`,
-                  height: "100%",
-                  background: asteroidGauge === maxGauge ? "green" : "red",
-                  transition: "width 0.1s ease-in-out",
-                }}
-              />
-            </div>
-            <p>Jauge : {Math.round(asteroidGauge)}%</p>
+            />
           </div>
+          <p
+            style={{
+              color: "var(--dark-dark-blue)",
+              fontSize: "1.5rem",
+              marginTop: "10px",
+            }}
+          >
+            Jauge : {Math.round(asteroidGauge)}%
+          </p>
         </div>
       )}
       {message && step !== 0 && step !== 5 && (
@@ -265,6 +322,8 @@ const Lune = () => {
           threatDestroyed={threatDestroyed}
           handleThreatClick={handleThreatClick}
           handlePlanetSelection={handlePlanetSelection}
+          handleFlagUproot={handleFlagUproot}
+          uprootedFlags={uprootedFlags}
           onLandingComplete={handleLandingComplete}
           isMuted={isMuted}
           hasStartedLanding={hasStartedLanding}
