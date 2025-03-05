@@ -23,6 +23,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/terre" element={<Terre />} />
           <Route path="/scene2" element={<Scene2 />} />
+          <Route path="/scene3" element={<Scene3 />} />
           <Route path="/lune" element={<Lune />} />
           <Route path="/vehicles" element={<Vehicles />} />
           <Route path="/shop" element={<Shop />} />
