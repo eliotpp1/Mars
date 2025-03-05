@@ -36,6 +36,7 @@ export const Scene = ({
   const indiaRef = useRef();
   const chinaFlagRef = useRef();
   const orbitControlsRef = useRef();
+  const alienRef = useRef();
   const [vehicle, setVehicle] = useState(null);
 
   const takeoffSound = new Audio("/assets/sounds/takeoff.mp3");
@@ -220,7 +221,7 @@ export const Scene = ({
     }
   }, [step]);
 
-  // Animation pour déplacer la caméra vers la scène des drapeaux (step 3) et revenir au véhicule
+  // Animation pour déplacer la caméra vers la scène des drapeaux (step 3)
   useEffect(() => {
     if (
       step === 3 &&
@@ -228,13 +229,10 @@ export const Scene = ({
       cameraRef.current &&
       orbitControlsRef.current
     ) {
-      // Désactiver temporairement les interactions
       orbitControlsRef.current.enabled = false;
 
-      // Animation de déplacement de la caméra
       const cameraMovement = gsap.timeline({
         onComplete: () => {
-          // Réactiver les contrôles après l'animation
           if (orbitControlsRef.current) {
             orbitControlsRef.current.enabled = true;
           }
@@ -242,18 +240,15 @@ export const Scene = ({
       });
 
       cameraMovement.to(cameraRef.current.position, {
-        x: -450, // Position X plus large pour voir la scène
-        y: 50, // Hauteur
-        z: -100, // Profondeur
+        x: -450,
+        y: 50,
+        z: -100,
         duration: 2,
         ease: "power2.inOut",
         onUpdate: () => {
-          // Forcer la caméra à regarder vers la scène des drapeaux
           if (cameraRef.current) {
             cameraRef.current.lookAt(350, -15, -150);
           }
-
-          // Mettre à jour manuellement le point de visée des OrbitControls
           if (orbitControlsRef.current) {
             orbitControlsRef.current.target.set(350, -15, -150);
             orbitControlsRef.current.update();
@@ -350,7 +345,6 @@ export const Scene = ({
       <Stars position={[0, 0, -1000]} radius={1000} count={5000} />
       <CameraSetup
         cameraRef={cameraRef}
-        orbitControlsRef={orbitControlsRef} // Nouveau prop
         cameraPosition={[0, 50, 100]}
         cameraTarget={[0, 5, 0]}
       />
@@ -374,17 +368,26 @@ export const Scene = ({
         scale={2.1}
         meshRef={marsRef}
       />
+      {/* Apollo toujours présent */}
+      <SceneObject
+        modelPath="/assets/models/lune/apollo.glb"
+        position={[400, -14, -150]}
+        rotation={[0, Math.PI / 2, 0]}
+        scale={1}
+        meshRef={apolloRef}
+      />
 
+      {/* Alien toujours présent */}
+      <SceneObject
+        modelPath="/assets/models/lune/alien.glb"
+        position={[1200, -100, 1000]}
+        rotation={[0, -Math.PI / 1.5, 0]}
+        scale={1}
+        meshRef={alienRef}
+      />
       {/* Scène des drapeaux au step 3 */}
       {step >= 3 && (
         <>
-          <SceneObject
-            modelPath="/assets/models/lune/apollo.glb"
-            position={[400, -14, -150]}
-            rotation={[0, Math.PI / 2, 0]}
-            scale={1}
-            meshRef={apolloRef}
-          />
           {!uprootedFlags.includes("USA") && (
             <SceneObject
               modelPath="/assets/models/lune/usa_flag.glb"
@@ -517,7 +520,7 @@ export const Scene = ({
   );
 };
 
-// Préchargement des nouveaux modèles
+// Préchargement des modèles
 useGLTF.preload("/assets/models/lune/lune.glb");
 useGLTF.preload("/assets/models/vehicles/rocket.glb");
 useGLTF.preload("/assets/models/planets/terre.glb");
@@ -532,3 +535,4 @@ useGLTF.preload("/assets/models/lune/usa_flag.glb");
 useGLTF.preload("/assets/models/lune/france_flag.glb");
 useGLTF.preload("/assets/models/lune/india_flag.glb");
 useGLTF.preload("/assets/models/lune/china_flag.glb");
+useGLTF.preload("/assets/models/lune/alien.glb");
