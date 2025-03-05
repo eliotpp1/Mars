@@ -1,4 +1,3 @@
-// src/game/scenes/LuneScene.jsx
 import { useRef, useEffect, useState } from "react";
 import { gsap } from "gsap";
 import { Stars } from "../../components/Stars";
@@ -14,6 +13,8 @@ export const Scene = ({
   threatDestroyed,
   handleThreatClick,
   handlePlanetSelection,
+  handleFlagUproot,
+  uprootedFlags,
   onLandingComplete,
   isMuted,
   hasStartedLanding,
@@ -29,6 +30,12 @@ export const Scene = ({
   const venusRef = useRef();
   const jupiterRef = useRef();
   const dustRef = useRef();
+  const apolloRef = useRef();
+  const usaFlagRef = useRef();
+  const franceFlagRef = useRef();
+  const indiaRef = useRef();
+  const chinaFlagRef = useRef();
+  const orbitControlsRef = useRef();
   const [vehicle, setVehicle] = useState(null);
 
   const takeoffSound = new Audio("/assets/sounds/takeoff.mp3");
@@ -88,6 +95,7 @@ export const Scene = ({
     return particles;
   };
 
+  // Animation initiale (atterrissage)
   useEffect(() => {
     if (
       step === 0 &&
@@ -101,12 +109,7 @@ export const Scene = ({
       marsRef.current.position.set(500, 200, -1000);
 
       gsap
-        .timeline({
-          onComplete: () => {
-            console.log("Animation terminée");
-            onLandingComplete();
-          },
-        })
+        .timeline({ onComplete: onLandingComplete })
         .fromTo(
           cameraRef.current.position,
           { x: 0, y: 50, z: 150 },
@@ -116,31 +119,18 @@ export const Scene = ({
             z: 50,
             duration: 5,
             ease: "sine.inOut",
-            onUpdate: () => {
-              cameraRef.current.lookAt(rocketRef.current.position);
-            },
+            onUpdate: () =>
+              cameraRef.current.lookAt(rocketRef.current.position),
           }
         )
         .to(
           rocketRef.current.position,
-          {
-            x: 0,
-            y: 50,
-            z: 6,
-            duration: 5,
-            ease: "sine.inOut",
-          },
+          { x: 0, y: 50, z: 6, duration: 5, ease: "sine.inOut" },
           0
         )
         .to(
           rocketRef.current.rotation,
-          {
-            x: 0,
-            y: 0,
-            z: 0,
-            duration: 3,
-            ease: "sine.inOut",
-          },
+          { x: 0, y: 0, z: 0, duration: 3, ease: "sine.inOut" },
           "-=3"
         )
         .to(rocketRef.current.position, {
@@ -169,6 +159,7 @@ export const Scene = ({
     }
   }, [step, hasStartedLanding]);
 
+  // Animation des planètes (step 1)
   useEffect(() => {
     if (
       step === 1 &&
@@ -229,6 +220,50 @@ export const Scene = ({
     }
   }, [step]);
 
+  // Animation pour déplacer la caméra vers la scène des drapeaux (step 3) et revenir au véhicule
+  useEffect(() => {
+    if (
+      step === 3 &&
+      apolloRef.current &&
+      cameraRef.current &&
+      orbitControlsRef.current
+    ) {
+      // Désactiver temporairement les interactions
+      orbitControlsRef.current.enabled = false;
+
+      // Animation de déplacement de la caméra
+      const cameraMovement = gsap.timeline({
+        onComplete: () => {
+          // Réactiver les contrôles après l'animation
+          if (orbitControlsRef.current) {
+            orbitControlsRef.current.enabled = true;
+          }
+        },
+      });
+
+      cameraMovement.to(cameraRef.current.position, {
+        x: -450, // Position X plus large pour voir la scène
+        y: 50, // Hauteur
+        z: -100, // Profondeur
+        duration: 2,
+        ease: "power2.inOut",
+        onUpdate: () => {
+          // Forcer la caméra à regarder vers la scène des drapeaux
+          if (cameraRef.current) {
+            cameraRef.current.lookAt(350, -15, -150);
+          }
+
+          // Mettre à jour manuellement le point de visée des OrbitControls
+          if (orbitControlsRef.current) {
+            orbitControlsRef.current.target.set(350, -15, -150);
+            orbitControlsRef.current.update();
+          }
+        },
+      });
+    }
+  }, [step]);
+
+  // Animation de l’astéroïde (step 5)
   useEffect(() => {
     if (
       step === 5 &&
@@ -296,11 +331,7 @@ export const Scene = ({
         })
         .to(
           rocketRef.current.rotation,
-          {
-            x: -Math.PI / 6,
-            duration: 2,
-            ease: "power1.in",
-          },
+          { x: -Math.PI / 6, duration: 2, ease: "power1.in" },
           0
         )
         .to(rocketRef.current.position, {
@@ -319,6 +350,7 @@ export const Scene = ({
       <Stars position={[0, 0, -1000]} radius={1000} count={5000} />
       <CameraSetup
         cameraRef={cameraRef}
+        orbitControlsRef={orbitControlsRef} // Nouveau prop
         cameraPosition={[0, 50, 100]}
         cameraTarget={[0, 5, 0]}
       />
@@ -329,7 +361,7 @@ export const Scene = ({
       />
       <SceneObject
         modelPath={vehicle || "/assets/models/vehicles/rocket.glb"}
-        position={[0, 14.8, 6]} // Position finale corrigée
+        position={[-500, 14.8, 6]}
         scale={4}
         onClick={launchRocket}
         meshRef={rocketRef}
@@ -342,6 +374,63 @@ export const Scene = ({
         scale={2.1}
         meshRef={marsRef}
       />
+
+      {/* Scène des drapeaux au step 3 */}
+      {step >= 3 && (
+        <>
+          <SceneObject
+            modelPath="/assets/models/lune/apollo.glb"
+            position={[400, -14, -150]}
+            rotation={[0, Math.PI / 2, 0]}
+            scale={1}
+            meshRef={apolloRef}
+          />
+          {!uprootedFlags.includes("USA") && (
+            <SceneObject
+              modelPath="/assets/models/lune/usa_flag.glb"
+              position={[45, -22, -75]}
+              scale={0.025}
+              rotation={[0, Math.PI / 1, 0]}
+              onClick={() => handleFlagUproot("USA")}
+              meshRef={usaFlagRef}
+              cursor="pointer"
+            />
+          )}
+          {!uprootedFlags.includes("France") && (
+            <SceneObject
+              modelPath="/assets/models/lune/france_flag.glb"
+              position={[15, -16.5, -75]}
+              rotation={[0, Math.PI / 2, 0]}
+              scale={85}
+              onClick={() => handleFlagUproot("France")}
+              meshRef={franceFlagRef}
+              cursor="pointer"
+            />
+          )}
+          {!uprootedFlags.includes("Inde") && (
+            <SceneObject
+              modelPath="/assets/models/lune/india_flag.glb"
+              position={[-55, -25, -93]}
+              scale={20}
+              onClick={() => handleFlagUproot("Inde")}
+              meshRef={indiaRef}
+              cursor="pointer"
+            />
+          )}
+          {!uprootedFlags.includes("Chine") && (
+            <SceneObject
+              modelPath="/assets/models/lune/china_flag.glb"
+              position={[-85, -16.5, -75]}
+              scale={4.5}
+              rotation={[0, -Math.PI / 1, 0]}
+              onClick={() => handleFlagUproot("Chine")}
+              meshRef={chinaFlagRef}
+              cursor="pointer"
+            />
+          )}
+        </>
+      )}
+
       {step >= 1 && (
         <>
           {step === 1 && (
@@ -428,6 +517,7 @@ export const Scene = ({
   );
 };
 
+// Préchargement des nouveaux modèles
 useGLTF.preload("/assets/models/lune/lune.glb");
 useGLTF.preload("/assets/models/vehicles/rocket.glb");
 useGLTF.preload("/assets/models/planets/terre.glb");
@@ -437,3 +527,8 @@ useGLTF.preload("/assets/models/planets/jupiter.glb");
 useGLTF.preload("/assets/models/lune/asteroid.glb");
 useGLTF.preload("/assets/models/lune/toaster.glb");
 useGLTF.preload("/assets/models/lune/helmet.glb");
+useGLTF.preload("/assets/models/lune/apollo.glb");
+useGLTF.preload("/assets/models/lune/usa_flag.glb");
+useGLTF.preload("/assets/models/lune/france_flag.glb");
+useGLTF.preload("/assets/models/lune/india_flag.glb");
+useGLTF.preload("/assets/models/lune/china_flag.glb");
