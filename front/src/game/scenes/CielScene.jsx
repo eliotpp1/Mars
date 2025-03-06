@@ -4,10 +4,12 @@ import { useThree, useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import { SceneObject } from "../../components/SceneObject";
 import { CameraSetup } from "../../components/CameraSetup";
+import { useSound } from "../../context/SoundContext";
 import { SunRay } from "../../components/SunRay";
 
 export const Scene = () => {
   const { camera } = useThree();
+  const { isMuted } = useSound();
 
   const [gameState, setGameState] = useState({
     currentGame: 1,
@@ -32,6 +34,22 @@ export const Scene = () => {
   const baseX = 150;
   const baseZ = 0;
   const spacing = 50;
+  const ambianceSound = new Audio("/assets/sounds/vent.mp3");
+  const winSound = new Audio("/assets/sounds/correct.mp3");
+  const planeSound = new Audio("/assets/sounds/takeoff.mp3");
+
+  useEffect(() => {
+    if (!isMuted) {
+      ambianceSound.loop = true;
+      ambianceSound.volume = 0.07;
+      ambianceSound.play();
+    } else {
+      ambianceSound.pause();
+    }
+    return () => {
+      ambianceSound.pause();
+    };
+  }, [isMuted]);
 
   const handlePlaneClick = () => {
     if (gameState.currentGame === 1 && !gameState.game1Completed) {
@@ -43,13 +61,7 @@ export const Scene = () => {
           "Bravo ! Vous avez trouvé l'avion. Prochain défi : cliquez sur le rayon de la bonne couleur !",
         currentGame: 2,
       }));
-
-      gsap.to(planeRef.current.position, {
-        y: planeRef.current.position.y + 20,
-        duration: 1,
-        yoyo: true,
-        repeat: 1,
-      });
+      winSound.play();
     }
   };
 
@@ -63,6 +75,7 @@ export const Scene = () => {
           "Parfait ! Vous avez trouvé le rayon jaune. Dernier défi : guidez l'avion hors de l'atmosphère !",
         currentGame: 3,
       }));
+      winSound.play();
     }
   };
 
@@ -282,6 +295,7 @@ export const Scene = () => {
             showPathGame: false,
             awaitingConfirmation: true,
           }));
+          winSound.play();
         }
       } else {
         if (mouseOnPath) {
@@ -330,15 +344,13 @@ export const Scene = () => {
       if (prev.awaitingConfirmation && rocketRef.current) {
         setIsRocketAnimating(true);
         newState.awaitingConfirmation = false;
-
+        planeSound.play();
         gsap.to(rocketRef.current.position, {
           y: 500,
-          duration: 4,
+          duration: 8,
           ease: "power1.in",
           onComplete: () => {
-            setTimeout(() => {
               window.location.href = "/";
-            }, 2000);
           },
         });
       }
