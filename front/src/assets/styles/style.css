@@ -430,3 +430,28 @@ form {
 .sound-overlay button:hover {
   background-color: rgba(0, 0, 0, 0.9);
 }
+
+/* Terre */
+.overlay-message {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 15px;
+  font-family: "Orbitron", sans-serif;
+  z-index: 1000;
+}
+
+.overlay-form {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 15px;
+  font-family: "Orbitron", sans-serif;
+  z-index: 1000;
+}

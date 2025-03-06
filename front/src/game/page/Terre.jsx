@@ -1,18 +1,63 @@
 import { Canvas } from "@react-three/fiber";
 import { Scene } from "../scenes/Scene";
 import { useGLTF } from "@react-three/drei";
-import { useState } from "react";
+import { useSound } from "../../context/SoundContext";
+import { useState, useEffect } from "react";
+import API_URL from "../../constants/api";
 
 const Terre = () => {
   const [birdFound, setBirdFound] = useState(false);
   const [monkeyFound, setMonkeyFound] = useState(false);
   const [answer, setAnswer] = useState("");
   const [frogFound, setFrogFound] = useState(false);
-  const [q1Found, setQ1Found] = useState(false); // État pour le premier QCM
-  const [q2Found, setQ2Found] = useState(false); // État pour le deuxième QCM
+  const [q1Found, setQ1Found] = useState(false);
+  const [q2Found, setQ2Found] = useState(false);
+  const [quiz1Data, setQuiz1Data] = useState(null);
+  const [quiz2Data, setQuiz2Data] = useState(null);
   const [errorCount, setErrorCount] = useState(0);
+  const [message, setMessage] = useState("");
+  const { isMuted } = useSound();
+
+  const errorSound = new Audio("/assets/sounds/error.mp3");
+  const correctSound = new Audio("/assets/sounds/correct.mp3");
 
   localStorage.setItem("environnement", "Terre");
+
+  // Fetch des questions au chargement
+  useEffect(() => {
+    const fetchQuestion = async () => {
+      try {
+        const res = await fetch(`${API_URL}/question/Terre`);
+        const data = await res.json();
+        // Transformer les choix en tableau pour faciliter l'affichage
+        return {
+          ...data,
+          options: [data.choix1, data.choix2, data.choix3, data.choix4],
+          correctAnswer: data[`choix${data.reponse_correcte}`],
+        };
+      } catch (err) {
+        console.error("Erreur API:", err);
+        return null;
+      }
+    };
+
+    const loadQuestions = async () => {
+      const firstQuestion = await fetchQuestion();
+      if (firstQuestion) {
+        setQuiz1Data(firstQuestion);
+
+        // Assurer qu'on a une question différente pour quiz2
+        let secondQuestion;
+        do {
+          secondQuestion = await fetchQuestion();
+        } while (!secondQuestion || secondQuestion.id === firstQuestion.id);
+
+        setQuiz2Data(secondQuestion);
+      }
+    };
+
+    loadQuestions();
+  }, []);
 
   const isSpellingClose = (input, target) => {
     const cleanInput = input.toLowerCase().trim();
@@ -32,11 +77,13 @@ const Terre = () => {
     e.preventDefault();
     const userAnswer = answer.toLowerCase().trim();
 
-    if (userAnswer === "grenouille" || userAnswer === "Grenouille") {
+    if (userAnswer === "grenouille") {
+      if (!isMuted) correctSound.play();
       setFrogFound(true);
       setMessage("Bravo ! Tu as trouvé la grenouille !");
       setErrorCount(0);
     } else {
+      if (!isMuted) errorSound.play();
       setErrorCount((prev) => prev + 1);
       setAnswer("");
 
@@ -57,19 +104,33 @@ const Terre = () => {
   };
 
   const handleQ1Submit = (selectedAnswer) => {
-    if (selectedAnswer === "oxygène") {
-      setQ1Found(true);
-      setMessage("Correct ! Que respirent les humains ? Oxygène !");
+    if (selectedAnswer === quiz1Data?.correctAnswer) {
+      if (!isMuted) correctSound.play();
+      setMessage(
+        `Correct ! ${quiz1Data.question} ${quiz1Data.correctAnswer} !`
+      );
+      setTimeout(() => {
+        setQ1Found(true);
+        setMessage("");
+      }, 1500);
     } else {
+      if (!isMuted) errorSound.play();
       setMessage("Faux ! Réessaie.");
     }
   };
 
   const handleQ2Submit = (selectedAnswer) => {
-    if (selectedAnswer === "8 milliards") {
-      setQ2Found(true);
-      setMessage("Correct ! La population est d'environ 8 milliards !");
+    if (selectedAnswer === quiz2Data?.correctAnswer) {
+      if (!isMuted) correctSound.play();
+      setMessage(
+        `Correct ! ${quiz2Data.question} ${quiz2Data.correctAnswer} !`
+      );
+      setTimeout(() => {
+        setQ2Found(true);
+        setMessage("");
+      }, 1500);
     } else {
+      if (!isMuted) errorSound.play();
       setMessage("Faux ! Réessaie.");
     }
   };
@@ -185,85 +246,47 @@ const Terre = () => {
         </div>
       )}
 
-      {frogFound && !q1Found && (
-        <div
-          style={{
-            position: "absolute",
-            top: "20px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            background: "rgba(255, 255, 255, 0.8)",
-            padding: "20px",
-            borderRadius: "15px",
-            fontFamily: "Orbitron, sans-serif",
-            zIndex: 1000,
-          }}
-        >
-          <div style={{ textAlign: "center", marginBottom: "10px" }}>
-            Que respirent les humains pour vivre ?
+      {frogFound && !q1Found && quiz1Data && (
+        <div className="overlay">
+          <h2>{quiz1Data.question}</h2>
+          <div className="quiz-answers">
+            {quiz1Data.options.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => handleQ1Submit(option)}
+                style={{
+                  margin: "5px",
+                  padding: "5px 10px",
+                  borderRadius: "5px",
+                  fontFamily: "Orbitron, sans-serif",
+                }}
+              >
+                {option}
+              </button>
+            ))}
           </div>
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
-          >
-            <button onClick={() => handleQ1Submit("oxygène")}>Oxygène</button>
-            <button onClick={() => handleQ1Submit("azote")}>Azote</button>
-            <button onClick={() => handleQ1Submit("carbone")}>Carbone</button>
-          </div>
-          {message && (
-            <div
-              style={{
-                marginTop: "15px",
-                color: q1Found ? "#4CAF50" : "#ff4444",
-                textAlign: "center",
-              }}
-            >
-              {message}
-            </div>
-          )}
         </div>
       )}
 
-      {q1Found && !q2Found && (
-        <div
-          style={{
-            position: "absolute",
-            top: "20px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            background: "rgba(255, 255, 255, 0.8)",
-            padding: "20px",
-            borderRadius: "15px",
-            fontFamily: "Orbitron, sans-serif",
-            zIndex: 1000,
-          }}
-        >
-          <div style={{ textAlign: "center", marginBottom: "10px" }}>
-            Combien d'habitants y a-t-il sur Terre environ ?
+      {q1Found && !q2Found && quiz2Data && (
+        <div className="overlay">
+          <h2>{quiz2Data.question}</h2>
+          <div className="quiz-answers">
+            {quiz2Data.options.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => handleQ2Submit(option)}
+                style={{
+                  margin: "5px",
+                  padding: "5px 10px",
+                  borderRadius: "5px",
+                  fontFamily: "Orbitron, sans-serif",
+                }}
+              >
+                {option}
+              </button>
+            ))}
           </div>
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
-          >
-            <button onClick={() => handleQ2Submit("8 milliards")}>
-              8 milliards
-            </button>
-            <button onClick={() => handleQ2Submit("5 millions")}>
-              5 millions
-            </button>
-            <button onClick={() => handleQ2Submit("12 milliards")}>
-              12 milliards
-            </button>
-          </div>
-          {message && (
-            <div
-              style={{
-                marginTop: "15px",
-                color: q2Found ? "#4CAF50" : "#ff4444",
-                textAlign: "center",
-              }}
-            >
-              {message}
-            </div>
-          )}
         </div>
       )}
 
@@ -279,7 +302,7 @@ const Terre = () => {
             padding: "10px 20px",
             borderRadius: "5px",
             zIndex: 1000,
-            fontFamily: "Arial, sans-serif",
+            fontFamily: "Orbitron, sans-serif",
           }}
         >
           Clique sur la fusée pour continuer !

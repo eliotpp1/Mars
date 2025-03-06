@@ -31,6 +31,8 @@ export const Scene = ({
   const [cameraTarget, setCameraTarget] = useState([65, 0, -47]);
 
   const ambianceSound = new Audio("/assets/sounds/soundTerre.mp3");
+  const clickSound = new Audio("/assets/sounds/click.mp3");
+  const takeOffSound = new Audio("/assets/sounds/takeoff.mp3");
 
   useEffect(() => {
     if (localStorage.getItem("selectedVehicle") === null) {
@@ -122,6 +124,7 @@ export const Scene = ({
   }, [frogFound]);
 
   const handleBirdClick = () => {
+    clickSound.play();
     setBirdFound(true);
     setIsWalking(true);
 
@@ -180,6 +183,7 @@ export const Scene = ({
   };
 
   const handleMonkeyClick = () => {
+    clickSound.play();
     setMonkeyFound(true);
     setIsWalking(true);
 
@@ -271,6 +275,7 @@ export const Scene = ({
   const launchRocket = () => {
     if (!launched && q1Found && q2Found) {
       // La fusée ne se lance que si les deux QCM sont réussis
+      takeOffSound.play();
       setLaunched(true);
       gsap.to(rocketRef.current.position, {
         y: 30,
