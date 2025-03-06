@@ -53,7 +53,6 @@ export const Scene = () => {
     }
   };
 
-
   const handleYellowRayClick = () => {
     if (gameState.currentGame === 2 && !gameState.game2Completed) {
       setGameState((prev) => ({
@@ -66,7 +65,6 @@ export const Scene = () => {
       }));
     }
   };
-
 
   const generatePath = () => {
     const width = 500;
@@ -127,16 +125,24 @@ export const Scene = () => {
 
   // Effet pour initialiser le jeu 3 après la fermeture de la popup du jeu 2
   useEffect(() => {
-    if (gameState.currentGame === 3 && !gameState.showPopup && !pathInitializedRef.current) {
+    if (
+      gameState.currentGame === 3 &&
+      !gameState.showPopup &&
+      !pathInitializedRef.current
+    ) {
       console.log("Chargement du jeu 3..."); // Vérification dans la console
-  
+
       setGameState((prev) => ({ ...prev, showPathGame: true }));
-  
+
       setTimeout(() => {
         if (pathCanvasRef.current) {
           const cleanupFunction = initPathGame();
           pathInitializedRef.current = true;
-          setGameState((prev) => ({ ...prev, popupText: "Défi 3: Suivez le chemin avec votre souris pour faire décoller l'avion" }));
+          setGameState((prev) => ({
+            ...prev,
+            popupText:
+              "Défi 3: Suivez le chemin avec votre souris pour faire décoller l'avion",
+          }));
           if (cleanupFunction) {
             return cleanupFunction;
           }
@@ -144,7 +150,7 @@ export const Scene = () => {
       }, 300);
     }
   }, [gameState.currentGame, gameState.showPopup]);
-  
+
   const initPathGame = () => {
     const canvas = pathCanvasRef.current;
 
@@ -365,11 +371,7 @@ export const Scene = () => {
       />
 
       <group ref={planeRef} position={[-70, -100, -50]} rotation={[0, -5, 0]}>
-        <mesh
-          visible={false}
-          onClick={handlePlaneClick}
-          scale={[3, 3, 3]}
-        >
+        <mesh visible={false} onClick={handlePlaneClick} scale={[3, 3, 3]}>
           <boxGeometry args={[10, 5, 10]} />
           <meshBasicMaterial opacity={0} transparent />
         </mesh>
@@ -449,6 +451,7 @@ export const Scene = () => {
               transform: "translateX(-50%)",
               background: "rgba(255, 255, 255, 0.8)",
               boxShadow: "0px 0px 20px rgba(255, 255, 255, 0.3)",
+              color: "black",
               padding: "20px",
               borderRadius: "15px",
               fontFamily: "Orbitron, sans-serif",
@@ -493,6 +496,8 @@ export const Scene = () => {
               background: "rgba(255, 255, 255, 0.9)",
               boxShadow: "0px 0px 20px rgba(255, 255, 255, 0.3)",
               padding: "20px",
+              color: "black",
+
               borderRadius: "15px",
               fontFamily: "Orbitron, sans-serif",
               zIndex: 2000,
@@ -529,6 +534,8 @@ export const Scene = () => {
               position: "absolute",
               top: "50%",
               left: "50%",
+              color: "black",
+
               transform: "translate(-50%, -50%)",
               backgroundColor: "rgba(0, 0, 0, 0.7)",
               padding: "10px",

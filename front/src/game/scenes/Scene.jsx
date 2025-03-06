@@ -5,21 +5,32 @@ import { SceneObject } from "../../components/SceneObject";
 import { AnimatedHuman } from "../../components/AnimatedHuman";
 import { CameraSetup } from "../../components/CameraSetup";
 import { useNavigate } from "react-router-dom";
+import { useSound } from "../../context/SoundContext";
 import API_URL from "../../constants/api";
 
-export const Scene = ({ setBirdFound, setMonkeyFound, frogFound, q1Found, q2Found }) => {
+export const Scene = ({
+  setBirdFound,
+  setMonkeyFound,
+  frogFound,
+  q1Found,
+  q2Found,
+}) => {
   const navigate = useNavigate();
   const cameraRef = useRef();
   const birdRef = useRef();
   const humanRef = useRef();
   const rocketRef = useRef();
   const monkeyRef = useRef();
+  const { isMuted } = useSound();
+
   const frogRef = useRef();
   const [launched, setLaunched] = useState(false);
   const [vehicle, setVehicle] = useState(null);
   const [isWalking, setIsWalking] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [cameraTarget, setCameraTarget] = useState([65, 0, -47]);
+
+  const ambianceSound = new Audio("/assets/sounds/soundTerre.mp3");
 
   useEffect(() => {
     if (localStorage.getItem("selectedVehicle") === null) {
@@ -28,6 +39,18 @@ export const Scene = ({ setBirdFound, setMonkeyFound, frogFound, q1Found, q2Foun
     fetchVehicle();
   }, []);
 
+  useEffect(() => {
+    if (!isMuted) {
+      ambianceSound.loop = true;
+      ambianceSound.volume = 0.09;
+      ambianceSound.play();
+    } else {
+      ambianceSound.pause();
+    }
+    return () => {
+      ambianceSound.pause();
+    };
+  }, [isMuted]);
   const fetchVehicle = async () => {
     let id = parseInt(localStorage.getItem("selectedVehicle")) + 1;
     const response = await fetch(`${API_URL}/vehicles/${id}`);
@@ -246,7 +269,8 @@ export const Scene = ({ setBirdFound, setMonkeyFound, frogFound, q1Found, q2Foun
   };
 
   const launchRocket = () => {
-    if (!launched && q1Found && q2Found) { // La fusée ne se lance que si les deux QCM sont réussis
+    if (!launched && q1Found && q2Found) {
+      // La fusée ne se lance que si les deux QCM sont réussis
       setLaunched(true);
       gsap.to(rocketRef.current.position, {
         y: 30,

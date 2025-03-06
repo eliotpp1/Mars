@@ -11,7 +11,6 @@ const Terre = () => {
   const [q1Found, setQ1Found] = useState(false); // État pour le premier QCM
   const [q2Found, setQ2Found] = useState(false); // État pour le deuxième QCM
   const [errorCount, setErrorCount] = useState(0);
-  const [message, setMessage] = useState("");
 
   localStorage.setItem("environnement", "Terre");
 
@@ -203,7 +202,9 @@ const Terre = () => {
           <div style={{ textAlign: "center", marginBottom: "10px" }}>
             Que respirent les humains pour vivre ?
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+          >
             <button onClick={() => handleQ1Submit("oxygène")}>Oxygène</button>
             <button onClick={() => handleQ1Submit("azote")}>Azote</button>
             <button onClick={() => handleQ1Submit("carbone")}>Carbone</button>
@@ -239,10 +240,18 @@ const Terre = () => {
           <div style={{ textAlign: "center", marginBottom: "10px" }}>
             Combien d'habitants y a-t-il sur Terre environ ?
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <button onClick={() => handleQ2Submit("8 milliards")}>8 milliards</button>
-            <button onClick={() => handleQ2Submit("5 millions")}>5 millions</button>
-            <button onClick={() => handleQ2Submit("12 milliards")}>12 milliards</button>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+          >
+            <button onClick={() => handleQ2Submit("8 milliards")}>
+              8 milliards
+            </button>
+            <button onClick={() => handleQ2Submit("5 millions")}>
+              5 millions
+            </button>
+            <button onClick={() => handleQ2Submit("12 milliards")}>
+              12 milliards
+            </button>
           </div>
           {message && (
             <div
