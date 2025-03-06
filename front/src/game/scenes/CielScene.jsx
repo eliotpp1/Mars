@@ -12,7 +12,7 @@ export const Scene = () => {
   const { isMuted } = useSound();
 
   const [gameState, setGameState] = useState({
-    currentGame: 1,
+    currentGame: 0, // Commencé à 0 pour l'animation d'intro
     game1Completed: false,
     game2Completed: false,
     game3Completed: false,
@@ -23,6 +23,7 @@ export const Scene = () => {
   });
 
   const [isRocketAnimating, setIsRocketAnimating] = useState(false);
+  const [isIntroAnimating, setIsIntroAnimating] = useState(true);
 
   const planeRef = useRef();
   const rocketRef = useRef();
@@ -34,20 +35,65 @@ export const Scene = () => {
   const baseX = 150;
   const baseZ = 0;
   const spacing = 50;
-  const ambianceSound = new Audio("/assets/sounds/vent.mp3");
+  const ambianceSound = useRef(new Audio("/assets/sounds/vent.mp3")).current;
   const winSound = new Audio("/assets/sounds/correct.mp3");
   const planeSound = new Audio("/assets/sounds/takeoff.mp3");
 
   useEffect(() => {
-    if (!isMuted) {
-      ambianceSound.loop = true;
-      ambianceSound.volume = 0.07;
-      ambianceSound.play();
-    } else {
-      ambianceSound.pause();
+    if (isIntroAnimating && rocketRef.current) {
+      rocketRef.current.position.y = -500;
+  
+      // Animation unique de la fusée
+      gsap.to(rocketRef.current.position, {
+        y: 2,
+        duration: 10, // Durée totale harmonisée
+        ease: "power1.inOut",
+        onComplete: () => {
+          setIsIntroAnimating(false);
+          setGameState(prev => ({ ...prev, currentGame: 1 }));
+        }
+      });
+  
+      // Animation caméra synchronisée
+      const targetCameraPosition = { x: 70, y: 5, z: -48 };
+      gsap.to(camera.position, {
+        x: targetCameraPosition.x,
+        y: targetCameraPosition.y,
+        z: targetCameraPosition.z,
+        duration: 10,
+        ease: "power1.inOut",
+        onUpdate: () => camera.lookAt(rocketRef.current.position) // Suivi fluide
+      });
     }
+  }, [isIntroAnimating, camera, isMuted]);
+
+  useEffect(() => {
+    ambianceSound.loop = true;
+    ambianceSound.volume = 0.1;
+  
+    const playAmbiance = async () => {
+      if (!isMuted) {
+        try {
+          await ambianceSound.play();
+        } catch (err) {
+          console.log("Son d'ambiance bloqué, attente interaction:", err);
+          const startOnInteraction = () => {
+            ambianceSound.play();
+            document.removeEventListener("click", startOnInteraction);
+          };
+          document.addEventListener("click", startOnInteraction);
+        }
+      } else {
+        ambianceSound.pause();
+        ambianceSound.currentTime = 0;
+      }
+    };
+  
+    playAmbiance();
+  
     return () => {
       ambianceSound.pause();
+      ambianceSound.currentTime = 0;
     };
   }, [isMuted]);
 
@@ -124,14 +170,14 @@ export const Scene = () => {
   };
 
   useFrame(() => {
-    if (isRocketAnimating && rocketRef.current) {
+    if ((isRocketAnimating || isIntroAnimating) && rocketRef.current) {
       const targetCameraPosition = {
         x: rocketRef.current.position.x + 50,
         y: rocketRef.current.position.y + 30,
         z: rocketRef.current.position.z + 50,
       };
 
-      camera.position.lerp(targetCameraPosition, 0.05);
+      camera.position.lerp(targetCameraPosition, 0.1);
       camera.lookAt(rocketRef.current.position);
     }
   });
@@ -410,14 +456,13 @@ export const Scene = () => {
         <group rotation={[0, 0, 0]}>
           <mesh
             ref={yellowRayBoxRef}
-            visible={false} // Changez à true temporairement pour déboguer
-            position={[0, 500, 50]} // Centre du cylindre à length/2 + offset de startPosition
+            visible={false}
+            position={[0, 500, 50]}
             onClick={(e) => {
               handleYellowRayClick();
             }}
           >
-            <cylinderGeometry args={[5, 5, 2000, 5]} />{" "}
-            {/* Même longueur que SunRay */}
+            <cylinderGeometry args={[5, 5, 2000, 5]} />
             <meshBasicMaterial opacity={0} transparent />
           </mesh>
           <SunRay
@@ -452,8 +497,30 @@ export const Scene = () => {
       <directionalLight position={[-5, 5, 5]} intensity={1} />
 
       <Html fullscreen>
-        {/* Instruction display - only shown when no popup and no path game */}
-        {!gameState.showPopup && !gameState.showPathGame && (
+        {/* Message de transition pendant l'animation d'intro */}
+        {isIntroAnimating && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: "50px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              background: "rgba(0, 0, 0, 0.7)",
+              color: "white",
+              padding: "15px 25px",
+              borderRadius: "10px",
+              fontFamily: "Orbitron, sans-serif",
+              textAlign: "center",
+              zIndex: 3000,
+            }}
+          >
+            <h2>Décollage en cours...</h2>
+            <p>Préparez-vous à relever les défis de l'espace !</p>
+          </div>
+        )}
+
+        {/* Instruction display - only shown when no popup, no path game, and intro is finished */}
+        {!gameState.showPopup && !gameState.showPathGame && !isIntroAnimating && (
           <div
             style={{
               position: "absolute",
@@ -509,7 +576,6 @@ export const Scene = () => {
               boxShadow: "0px 0px 20px rgba(255, 255, 255, 0.3)",
               padding: "20px",
               color: "black",
-
               borderRadius: "15px",
               fontFamily: "Orbitron, sans-serif",
               zIndex: 2000,
@@ -547,7 +613,6 @@ export const Scene = () => {
               top: "50%",
               left: "50%",
               color: "black",
-
               transform: "translate(-50%, -50%)",
               backgroundColor: "rgba(0, 0, 0, 0.7)",
               padding: "10px",
