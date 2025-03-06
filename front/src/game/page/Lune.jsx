@@ -4,7 +4,6 @@ import { useGLTF } from "@react-three/drei";
 import API_URL from "../../constants/api";
 import { useState, useEffect } from "react";
 import { useSound } from "../../context/SoundContext";
-import { color } from "three/src/nodes/TSL.js";
 
 const Lune = () => {
   const [step, setStep] = useState(0);
@@ -20,7 +19,7 @@ const Lune = () => {
   const [hasStartedLanding, setHasStartedLanding] = useState(false);
   const [asteroidGauge, setAsteroidGauge] = useState(0);
   const maxGauge = 100;
-  const [lastClickTime, setLastClickTime] = useState(0); // Pour debounce du son
+  const [lastClickTime, setLastClickTime] = useState(0);
 
   const { isMuted } = useSound();
 
@@ -80,7 +79,6 @@ const Lune = () => {
   };
 
   const handleLandingComplete = () => {
-    console.log("Landing complete");
     setMessage("Atterrissage réussi ! Prépare-toi pour la mission.");
     setHasLanded(true);
     setStep(1);
@@ -102,11 +100,10 @@ const Lune = () => {
     if (!isMuted) {
       const now = Date.now();
       if (now - lastClickTime > 100) {
-        // Délai de 100ms entre les sons
-        destroySound.pause(); // Arrête le son en cours
-        destroySound.currentTime = 0; // Réinitialise au début
-        destroySound.play(); // Joue immédiatement
-        setLastClickTime(now); // Met à jour le temps du dernier clic
+        destroySound.pause();
+        destroySound.currentTime = 0;
+        destroySound.play();
+        setLastClickTime(now);
       }
     }
   };
@@ -142,12 +139,8 @@ const Lune = () => {
     } else {
       playClickSound();
       setUprootedFlags((prev) => {
-        console.log("Drapeaux actuels :", prev);
-        if (prev.includes(flag)) {
-          return prev;
-        }
+        if (prev.includes(flag)) return prev;
         const newFlags = [...prev, flag];
-        console.log("Nouveaux drapeaux :", newFlags);
         if (newFlags.length === 3) {
           setMessage(
             "Correct ! Ce sont les Américains qui ont été les premiers sur la Lune."

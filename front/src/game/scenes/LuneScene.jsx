@@ -29,7 +29,6 @@ export const Scene = ({
   const marsRef = useRef();
   const venusRef = useRef();
   const jupiterRef = useRef();
-  const dustRef = useRef();
   const apolloRef = useRef();
   const usaFlagRef = useRef();
   const franceFlagRef = useRef();
@@ -55,45 +54,6 @@ export const Scene = ({
       console.error("Erreur lors du chargement du véhicule:", error);
       setVehicle("/assets/models/vehicles/rocket.glb");
     }
-  };
-
-  const createDustParticles = () => {
-    const particleCount = 200;
-    const particlesGeometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(particleCount * 3);
-    const velocities = new Float32Array(particleCount * 3);
-
-    for (let i = 0; i < particleCount; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 10;
-      positions[i * 3 + 1] = Math.random() * 5;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
-
-      velocities[i * 3] = (Math.random() - 0.5) * 0.1;
-      velocities[i * 3 + 1] = Math.random() * 0.2;
-      velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.1;
-    }
-
-    particlesGeometry.setAttribute(
-      "position",
-      new THREE.BufferAttribute(positions, 3)
-    );
-    particlesGeometry.setAttribute(
-      "velocity",
-      new THREE.BufferAttribute(velocities, 3)
-    );
-
-    const particlesMaterial = new THREE.PointsMaterial({
-      color: 0xaaaaaa,
-      size: 0.2,
-      transparent: true,
-      opacity: 0.8,
-    });
-
-    const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-    particles.position.set(0, 10, 6);
-    dustRef.current = particles;
-
-    return particles;
   };
 
   // Animation initiale (atterrissage)
@@ -258,7 +218,7 @@ export const Scene = ({
     }
   }, [step]);
 
-  // Animation de l’astéroïde (step 5)
+  // Animation de l'astéroïde avant destruction (step 5)
   useEffect(() => {
     if (
       step === 5 &&
@@ -291,49 +251,67 @@ export const Scene = ({
     }
   }, [step, threatDestroyed]);
 
+  // Animation de destruction de l'astéroïde
+  useEffect(() => {
+    if (step === 5 && threatDestroyed && asteroidRef.current) {
+      gsap
+        .timeline({
+          onComplete: () => {
+            if (asteroidRef.current) {
+              asteroidRef.current.visible = false; // Masquer l'astéroïde après l'animation
+            }
+          },
+        })
+        .to(asteroidRef.current.scale, {
+          x: 2,
+          y: 2,
+          z: 2,
+          duration: 0.5,
+          ease: "power2.out",
+        })
+        .to(asteroidRef.current.scale, {
+          x: 0,
+          y: 0,
+          z: 0,
+          duration: 0.8,
+          ease: "power2.in",
+        })
+        .to(
+          asteroidRef.current.position,
+          {
+            y: "+=20",
+            duration: 1.3,
+            ease: "power1.inOut",
+          },
+          0
+        );
+    }
+  }, [threatDestroyed]);
+
+  // Animation de décollage du véhicule
   const launchRocket = () => {
-    if (step === 5 && threatDestroyed && rocketRef.current && dustRef.current) {
+    if (step === 5 && threatDestroyed && rocketRef.current) {
       if (!isMuted) takeoffSound.play();
-
-      const dustParticles = dustRef.current;
-      const positions = dustParticles.geometry.attributes.position.array;
-      const velocities = dustParticles.geometry.attributes.velocity.array;
-
-      gsap.to(dustParticles.material, {
-        opacity: 0,
-        duration: 3,
-        ease: "power1.out",
-      });
-
-      const animateDust = () => {
-        for (let i = 0; i < positions.length / 3; i++) {
-          positions[i * 3] += velocities[i * 3];
-          positions[i * 3 + 1] += velocities[i * 3 + 1];
-          positions[i * 3 + 2] += velocities[i * 3 + 2];
-        }
-        dustParticles.geometry.attributes.position.needsUpdate = true;
-      };
 
       gsap
         .timeline({
-          onUpdate: animateDust,
           onComplete: () => navigate("/mars"),
         })
         .to(rocketRef.current.position, {
           y: 20,
-          duration: 2,
+          duration: 1.5,
           ease: "power1.in",
         })
         .to(
           rocketRef.current.rotation,
-          { x: -Math.PI / 6, duration: 2, ease: "power1.in" },
+          { x: -Math.PI / 6, duration: 1.5, ease: "power1.in" },
           0
         )
         .to(rocketRef.current.position, {
           x: 500,
           y: 200,
           z: -1000,
-          duration: 13.836,
+          duration: 3,
           ease: "power2.in",
         });
     }
@@ -345,6 +323,7 @@ export const Scene = ({
       <Stars position={[0, 0, -1000]} radius={1000} count={5000} />
       <CameraSetup
         cameraRef={cameraRef}
+        orbitControlsRef={orbitControlsRef}
         cameraPosition={[0, 50, 100]}
         cameraTarget={[0, 5, 0]}
       />
@@ -357,7 +336,7 @@ export const Scene = ({
         modelPath={vehicle || "/assets/models/vehicles/rocket.glb"}
         position={[-500, 14.8, 6]}
         scale={4}
-        onClick={launchRocket}
+        onClick={() => launchRocket()}
         meshRef={rocketRef}
         rotation={[0, 0, 0]}
         cursor={step === 5 && threatDestroyed ? "pointer" : "default"}
@@ -368,7 +347,6 @@ export const Scene = ({
         scale={2.1}
         meshRef={marsRef}
       />
-      {/* Apollo toujours présent */}
       <SceneObject
         modelPath="/assets/models/lune/apollo.glb"
         position={[400, -14, -150]}
@@ -376,8 +354,6 @@ export const Scene = ({
         scale={1}
         meshRef={apolloRef}
       />
-
-      {/* Alien toujours présent */}
       <SceneObject
         modelPath="/assets/models/lune/alien.glb"
         position={[1200, -100, 1000]}
@@ -385,7 +361,6 @@ export const Scene = ({
         scale={1}
         meshRef={alienRef}
       />
-      {/* Scène des drapeaux au step 3 */}
       {step >= 3 && (
         <>
           {!uprootedFlags.includes("USA") && (
@@ -433,7 +408,6 @@ export const Scene = ({
           )}
         </>
       )}
-
       {step >= 1 && (
         <>
           {step === 1 && (
@@ -491,7 +465,6 @@ export const Scene = ({
               />
             </>
           )}
-          {step === 5 && threatDestroyed && createDustParticles()}
         </>
       )}
       <ambientLight intensity={0.5} />
