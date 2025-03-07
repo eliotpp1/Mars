@@ -4,6 +4,8 @@ import { useGLTF } from "@react-three/drei";
 import { useState } from "react";
 import { use } from "react";
 
+
+
 const Atmosphere = () => {
   return (
     <div style={{ width: "100vw", height: "100vh", position: "relative" }}>

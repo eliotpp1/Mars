@@ -6,6 +6,7 @@ import { SceneObject } from "../../components/SceneObject";
 import { CameraSetup } from "../../components/CameraSetup";
 import { useSound } from "../../context/SoundContext";
 import { SunRay } from "../../components/SunRay";
+import API_URL from "../../constants/api";
 
 export const Scene = () => {
   const { camera } = useThree();
@@ -20,10 +21,24 @@ export const Scene = () => {
     popupMessage: "",
     showPathGame: false,
     awaitingConfirmation: false,
+    showQuiz: false,
+    currentQuizIndex: 0,
+    quizCompleted: false
   });
 
   const [isRocketAnimating, setIsRocketAnimating] = useState(false);
   const [isIntroAnimating, setIsIntroAnimating] = useState(true);
+  const [vehicle, setVehicle] = useState(null);
+  const [quiz1Data, setQuiz1Data] = useState(null);
+  const [quiz2Data, setQuiz2Data] = useState(null);
+  const [selectedAnswers, setSelectedAnswers] = useState({
+    quiz1: null,
+    quiz2: null
+  });
+  const [quizResults, setQuizResults] = useState({
+    quiz1Correct: false,
+    quiz2Correct: false
+  });
 
   const planeRef = useRef();
   const rocketRef = useRef();
@@ -38,6 +53,56 @@ export const Scene = () => {
   const ambianceSound = useRef(new Audio("/assets/sounds/vent.mp3")).current;
   const winSound = new Audio("/assets/sounds/correct.mp3");
   const planeSound = new Audio("/assets/sounds/takeoff.mp3");
+
+
+  // Fetch des questions au chargement
+  useEffect(() => {
+    const fetchQuestion = async () => {
+      try {
+        const res = await fetch(`${API_URL}/question/Ciel`);
+        const data = await res.json();
+        // Transformer les choix en tableau pour faciliter l'affichage
+        return {
+          ...data,
+          options: [data.choix1, data.choix2, data.choix3, data.choix4],
+          correctAnswer: data[`choix${data.reponse_correcte}`],
+        };
+      } catch (err) {
+        console.error("Erreur API:", err);
+        return null;
+      }
+    };
+
+    const loadQuestions = async () => {
+      const firstQuestion = await fetchQuestion();
+      if (firstQuestion) {
+        setQuiz1Data(firstQuestion);
+
+        // Assurer qu'on a une question différente pour quiz2
+        let secondQuestion;
+        do {
+          secondQuestion = await fetchQuestion();
+        } while (!secondQuestion || secondQuestion.id === firstQuestion.id);
+
+        setQuiz2Data(secondQuestion);
+      }
+    };
+
+    loadQuestions();
+
+    if (localStorage.getItem("selectedVehicle") === null) {
+      localStorage.setItem("selectedVehicle", 0);
+    }
+    fetchVehicle();
+
+  }, []);
+
+  const fetchVehicle = async () => {
+    let id = parseInt(localStorage.getItem("selectedVehicle")) + 1;
+    const response = await fetch(`${API_URL}/vehicles/${id}`);
+    const data = await response.json();
+    setVehicle(data.model);
+  };
 
   useEffect(() => {
     if (isIntroAnimating && rocketRef.current) {
@@ -337,7 +402,7 @@ export const Scene = () => {
             game3Completed: true,
             showPopup: true,
             popupMessage:
-              "Félicitations ! Vous avez complété tous les défis. Cliquez sur Continuer pour quitter l'atmosphère !",
+              "Félicitations ! Vous avez complété tous les défis. Maintenant, répondez à quelques questions sur l'atmosphère !",
             showPathGame: false,
             awaitingConfirmation: true,
           }));
@@ -387,22 +452,73 @@ export const Scene = () => {
       };
 
       // Si on ferme la popup finale (après avoir terminé le jeu 3)
-      if (prev.awaitingConfirmation && rocketRef.current) {
-        setIsRocketAnimating(true);
+      if (prev.awaitingConfirmation && prev.game3Completed) {
         newState.awaitingConfirmation = false;
-        planeSound.play();
-        gsap.to(rocketRef.current.position, {
-          y: 500,
-          duration: 8,
-          ease: "power1.in",
-          onComplete: () => {
-              window.location.href = "/";
-          },
-        });
+        newState.showQuiz = true;
+        newState.currentQuizIndex = 0;
+        return newState;
       }
 
       return newState;
     });
+  };
+
+  const handleAnswerSelect = (answer) => {
+    if (gameState.currentQuizIndex === 0) {
+      setSelectedAnswers(prev => ({...prev, quiz1: answer}));
+      
+      // Vérifier si la réponse est correcte
+      if (quiz1Data && answer === quiz1Data.correctAnswer) {
+        setQuizResults(prev => ({...prev, quiz1Correct: true}));
+        winSound.play();
+      }
+      
+      // Passer à la question suivante après un court délai
+      setTimeout(() => {
+        setGameState(prev => ({
+          ...prev,
+          currentQuizIndex: 1
+        }));
+      }, 1000);
+    } else {
+      setSelectedAnswers(prev => ({...prev, quiz2: answer}));
+      
+      // Vérifier si la réponse est correcte
+      if (quiz2Data && answer === quiz2Data.correctAnswer) {
+        setQuizResults(prev => ({...prev, quiz2Correct: true}));
+        winSound.play();
+      }
+      
+      // Terminer le quiz après un court délai
+      setTimeout(() => {
+        setGameState(prev => ({
+          ...prev,
+          showQuiz: false,
+          quizCompleted: true,
+          showPopup: true,
+          popupMessage: "Merci d'avoir répondu aux questions ! Cliquez sur Continuer pour quitter l'atmosphère !"
+        }));
+      }, 1000);
+    }
+  };
+
+  const handleFinalContinue = () => {
+    if (gameState.quizCompleted && rocketRef.current) {
+      setIsRocketAnimating(true);
+      setGameState(prev => ({
+        ...prev,
+        showPopup: false
+      }));
+      planeSound.play();
+      gsap.to(rocketRef.current.position, {
+        y: 500,
+        duration: 8,
+        ease: "power1.in",
+        onComplete: () => {
+          window.location.href = "/";
+        },
+      });
+    }
   };
 
   return (
@@ -440,9 +556,12 @@ export const Scene = () => {
         <SceneObject modelPath="/assets/models/ciel/fish.glb" scale={10} />
       </group>
 
-      <group position={[-200, 0, -25]} rotation={[0, 3.2, 0]}>
-        <SceneObject modelPath="/assets/models/ciel/voiture.glb" scale={10} />
-      </group>
+      <SceneObject
+        modelPath={vehicle || "/assets/models/vehicles/rocket.glb"}
+        position={[-200, 0, 25]}
+        rotation={[0, 3.2, 0]}
+        scale={10}
+      />
 
       <group ref={rocketRef} position={[0, 2, 0]}>
         <SceneObject
@@ -519,8 +638,7 @@ export const Scene = () => {
           </div>
         )}
 
-        {/* Instruction display - only shown when no popup, no path game, and intro is finished */}
-        {!gameState.showPopup && !gameState.showPathGame && !isIntroAnimating && (
+        {!gameState.showPopup && !gameState.showPathGame && !gameState.showQuiz && !isIntroAnimating && (
           <div
             style={{
               position: "absolute",
@@ -542,12 +660,12 @@ export const Scene = () => {
           >
             {gameState.currentGame === 1 && !gameState.game1Completed && (
               <p>
-                Défi 1: Trouvez et cliquez sur l'objet qui est à sa place dans
-                le ciel
+                Oups, on dirais que la fusée s'est arrêter. Trouvez l'avion
+                pour continuer ! 
               </p>
             )}
             {gameState.currentGame === 2 && !gameState.game2Completed && (
-              <p>Défi 2: Cliquez sur le rayon de soleil de la bonne couleur</p>
+              <p>Bien, Maintenant cliquer sur le rayon de soleil de la bonne couleur</p>
             )}
             {gameState.currentGame === 3 && !gameState.game3Completed && (
               <p>
@@ -560,6 +678,88 @@ export const Scene = () => {
               gameState.game3Completed && (
                 <p>Félicitations ! Tous les défis sont complétés !</p>
               )}
+          </div>
+        )}
+
+        {gameState.showQuiz && (
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              borderRadius: "15px",
+              padding: "20px",
+              boxShadow: "0 0 20px rgba(0, 0, 255, 0.5)",
+              width: "80%",
+              maxWidth: "600px",
+              fontFamily: "Orbitron, sans-serif",
+              zIndex: 2000,
+            }}
+          >
+            <h2 style={{ textAlign: "center", color: "#000080", marginBottom: "20px" }}>
+              {gameState.currentQuizIndex === 0 ? "Question 1/2" : "Question 2/2"}
+            </h2>
+            <p style={{ fontSize: "18px", fontWeight: "bold", marginBottom: "20px", color: "black" }}>
+              {gameState.currentQuizIndex === 0 && quiz1Data ? quiz1Data.question : ""}
+              {gameState.currentQuizIndex === 1 && quiz2Data ? quiz2Data.question : ""}
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {gameState.currentQuizIndex === 0 && quiz1Data
+                ? quiz1Data.options.map((option, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleAnswerSelect(option)}
+                      style={{
+                        padding: "12px",
+                        borderRadius: "8px",
+                        border: "none",
+                        backgroundColor: selectedAnswers.quiz1 === option
+                          ? selectedAnswers.quiz1 === quiz1Data.correctAnswer
+                            ? "#4CAF50" // Correct answer
+                            : "#FF5252" // Wrong answer
+                          : "#3498db",
+                        color: "white",
+                        fontFamily: "Orbitron, sans-serif",
+                        fontSize: "16px",
+                        cursor: "pointer",
+                        transition: "background-color 0.3s",
+                      }}
+                      disabled={selectedAnswers.quiz1 !== null}
+                    >
+                      {option}
+                    </button>
+                  ))
+                : null}
+              
+              {gameState.currentQuizIndex === 1 && quiz2Data
+                ? quiz2Data.options.map((option, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleAnswerSelect(option)}
+                      style={{
+                        padding: "12px",
+                        borderRadius: "8px",
+                        border: "none",
+                        backgroundColor: selectedAnswers.quiz2 === option
+                          ? selectedAnswers.quiz2 === quiz2Data.correctAnswer
+                            ? "#4CAF50" // Correct answer
+                            : "#FF5252" // Wrong answer
+                          : "#3498db",
+                        color: "white",
+                        fontFamily: "Orbitron, sans-serif",
+                        fontSize: "16px",
+                        cursor: "pointer",
+                        transition: "background-color 0.3s",
+                      }}
+                      disabled={selectedAnswers.quiz2 !== null}
+                    >
+                      {option}
+                    </button>
+                  ))
+                : null}
+            </div>
           </div>
         )}
 
@@ -588,7 +788,7 @@ export const Scene = () => {
           >
             <p>{gameState.popupMessage}</p>
             <button
-              onClick={handleClosePopup}
+              onClick={gameState.quizCompleted ? handleFinalContinue : handleClosePopup}
               style={{
                 backgroundColor: "#4CAF50",
                 border: "none",
