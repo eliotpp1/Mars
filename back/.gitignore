@@ -1,0 +1,5 @@
+# Gitignore api express
+node_modules
+dist
+.env
+```
