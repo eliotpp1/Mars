@@ -20,10 +20,11 @@ const Home = () => {
     if (!isMuted) clickSound.play(); // Jouer le son uniquement si pas muted
     if (name.trim()) {
       localStorage.setItem("playerName", name);
+      localStorage.setItem("unlockedVehicles", JSON.stringify([0])); // Débloquer le premier véhicule
 
       // Vérifie si "credits" est déjà défini, sinon le mettre à 0
-      if (!localStorage.getItem("credits")) {
-        localStorage.setItem("credits", "100");
+      if (!localStorage.getItem("mars")) {
+        localStorage.setItem("mars", "0");
       }
 
       navigate("/vehicles");
@@ -33,7 +34,7 @@ const Home = () => {
   return (
     <div className="home-container">
       <div className="stars" ref={starsRef}></div>
-      <h1>Bienvenue !</h1>
+      <h1> Les petits astronautes </h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
