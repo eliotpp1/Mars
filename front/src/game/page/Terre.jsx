@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { Scene } from "../scenes/Scene";
+import { Scene } from "../scenes/TerreScene";
 import { useGLTF } from "@react-three/drei";
 import { useSound } from "../../context/SoundContext";
 import { useState, useEffect } from "react";
