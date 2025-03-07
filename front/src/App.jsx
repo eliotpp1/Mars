@@ -12,6 +12,7 @@ import Scene3 from "./game/page/Space";
 import Lune from "./game/page/Lune";
 import Vehicles from "./components/Vehicles";
 import Shop from "./components/Shop";
+import EndGame from "./components/EndGame";
 import { SoundProvider } from "./context/SoundContext"; // Importer le contexte
 import SoundOverlay from "./components/SoundOverlay"; // Importer l'overlay
 
@@ -27,6 +28,7 @@ function App() {
           <Route path="/lune" element={<Lune />} />
           <Route path="/vehicles" element={<Vehicles />} />
           <Route path="/shop" element={<Shop />} />
+          <Route path="/gameover" element={<EndGame />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
         <SoundOverlay /> {/* Overlay global */}

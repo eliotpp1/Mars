@@ -258,21 +258,28 @@ const Vehicles = () => {
   };
 
   const play = () => {
-    if (audioRef.current) {
-      audioRef.current.volume = 0.5;
+    if (!isMuted) {
+      audioRef.current.currentTime = 0; // Réinitialiser pour éviter le chevauchement
       audioRef.current.play();
     }
+
+    // Enregistrer le temps de départ en millisecondes
+    localStorage.setItem("startTime", Date.now());
+
     setTimeout(() => navigate("/terre"), 1000);
   };
 
   const goToShop = () => {
-    playClickSound(); // Jouer le son au clic sur "Boutique"
+    if (!isMuted) {
+      audioRef.current.currentTime = 0; // Réinitialiser pour éviter le chevauchement
+      audioRef.current.play();
+    }
     navigate("/shop");
   };
 
   return (
     <div className="game-container">
-      <h1>Choisissez un véhicule</h1>
+      <h1>Choisissez un vehicule</h1>
       <div className="stars" ref={starsRef}></div>
       <div className="vehicle-selector">
         <button
