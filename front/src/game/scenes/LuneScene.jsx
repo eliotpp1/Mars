@@ -334,8 +334,8 @@ export const Scene = ({
       />
       <SceneObject
         modelPath={vehicle || "/assets/models/vehicles/rocket.glb"}
-        position={[-500, 14.8, 6]}
-        scale={4}
+        position={[-500, 25, 6]}
+        scale={100}
         onClick={() => launchRocket()}
         meshRef={rocketRef}
         rotation={[0, 0, 0]}

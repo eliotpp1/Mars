@@ -194,7 +194,7 @@ const Lune = () => {
       {step === 0 && !hasStartedLanding && (
         <div className="overlay">
           <h2>Approche de la Lune</h2>
-          <button onClick={startLanding}>Démarrer l'atterrissage</button>
+          <button onClick={startLanding}>Démarrer l&apos;atterrissage</button>
         </div>
       )}
       {step === 0 && hasStartedLanding && !hasLanded && (
