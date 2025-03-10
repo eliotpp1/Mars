@@ -4,7 +4,7 @@ import { ShoppingCart } from "lucide-react";
 import API_URL from "../constants/api";
 import { generateStars } from "../hooks/generateStars";
 
-const CREDITS_KEY = "credits";
+const CREDITS_KEY = "mars";
 const UNLOCKED_VEHICLES_KEY = "unlockedVehicles";
 
 const Shop = () => {

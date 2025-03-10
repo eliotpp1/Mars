@@ -11,9 +11,14 @@ import API_URL from "../../constants/api";
 export const Scene = ({
   setBirdFound,
   setMonkeyFound,
+  birdFound,
+  monkeyFound,
   frogFound,
   q1Found,
   q2Found,
+  setAnimationComplete,
+  animationComplete
+
 }) => {
   const navigate = useNavigate();
   const cameraRef = useRef();
@@ -63,7 +68,7 @@ export const Scene = ({
   const tempCameraTarget = useRef({ x: 65, y: 0, z: -47 });
 
   useEffect(() => {
-    if (frogFound) {
+    if (q2Found) {
       setIsWalking(true);
       gsap
         .timeline()
@@ -84,6 +89,7 @@ export const Scene = ({
           onComplete: () => {
             setIsWalking(false);
             setIsVisible(false);
+            setAnimationComplete(true);
           },
         });
       gsap
@@ -121,9 +127,10 @@ export const Scene = ({
           ease: "power2.inOut",
         });
     }
-  }, [frogFound]);
+  }, [q2Found]);
 
   const handleBirdClick = () => {
+    if (!birdFound) {
     clickSound.play();
     setBirdFound(true);
     setIsWalking(true);
@@ -180,9 +187,11 @@ export const Scene = ({
         ]);
       },
     });
+  }
   };
 
   const handleMonkeyClick = () => {
+    if (!monkeyFound && birdFound) {
     clickSound.play();
     setMonkeyFound(true);
     setIsWalking(true);
@@ -270,10 +279,11 @@ export const Scene = ({
         },
         "<"
       );
+    }
   };
 
   const launchRocket = () => {
-    if (!launched && q1Found && q2Found) {
+    if (!launched && q1Found && q2Found && animationComplete ) {
       // La fusée ne se lance que si les deux QCM sont réussis
       takeOffSound.play();
       setLaunched(true);
@@ -282,7 +292,7 @@ export const Scene = ({
         duration: 4,
         ease: "power2.out",
         onComplete: () => {
-          navigate("/scene2");
+          navigate("/Ciel");
         },
       });
     }
