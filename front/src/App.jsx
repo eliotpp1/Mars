@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import Home from "./components/Home";
 import Terre from "./game/page/Terre";
-import Scene2 from "./game/page/Atmosphere";
+import Ciel from "./game/page/Ciel";
 import Scene3 from "./game/page/Space";
 import Lune from "./game/page/Lune";
 import Vehicles from "./components/Vehicles";
@@ -23,7 +23,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/terre" element={<Terre />} />
-          <Route path="/scene2" element={<Scene2 />} />
+          <Route path="/ciel" element={<Ciel />} />
           <Route path="/scene3" element={<Scene3 />} />
           <Route path="/lune" element={<Lune />} />
           <Route path="/vehicles" element={<Vehicles />} />

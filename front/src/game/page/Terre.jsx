@@ -12,6 +12,7 @@ const Terre = () => {
   const [frogFound, setFrogFound] = useState(false);
   const [q1Found, setQ1Found] = useState(false);
   const [q2Found, setQ2Found] = useState(false);
+  const [animationComplete, setAnimationComplete] = useState(false);
   const [quiz1Data, setQuiz1Data] = useState(null);
   const [quiz2Data, setQuiz2Data] = useState(null);
   const [errorCount, setErrorCount] = useState(0);
@@ -290,7 +291,7 @@ const Terre = () => {
         </div>
       )}
 
-      {q2Found && (
+      {animationComplete && (
         <div
           style={{
             position: "absolute",
@@ -313,9 +314,14 @@ const Terre = () => {
         <Scene
           setBirdFound={setBirdFound}
           setMonkeyFound={setMonkeyFound}
+          setAnimationComplete={setAnimationComplete}
+          birdFound={birdFound}
+          monkeyFound={monkeyFound}
           frogFound={frogFound}
           q1Found={q1Found}
           q2Found={q2Found}
+          animationComplete={animationComplete}
+
         />
       </Canvas>
     </div>

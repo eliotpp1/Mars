@@ -14,6 +14,10 @@ export const Scene = ({ gameState, setGameState, handleFinalContinue, rocketRef,
   const [isRocketAnimating, setIsRocketAnimating] = useState(false);
   const [isIntroAnimating, setIsIntroAnimating] = useState(true);
   const [vehicle, setVehicle] = useState(null);
+  const [introComplete, setIntroComplete] = useState(false);
+  
+  // Flag pour contrôler si la caméra doit automatiquement suivre la fusée
+  const shouldFollowRocket = useRef(true);
 
   const planeRef = useRef();
   const yellowRayBoxRef = useRef();
@@ -38,25 +42,32 @@ export const Scene = ({ gameState, setGameState, handleFinalContinue, rocketRef,
     setVehicle(data.model);
   };
 
+  // Gestion de l'animation d'introduction
   useEffect(() => {
     if (isIntroAnimating && rocketRef.current) {
+      // Position initiale de la fusée en dehors de l'écran
       rocketRef.current.position.y = -500;
+      
+      // Animation de montée de la fusée
       gsap.to(rocketRef.current.position, {
         y: 2,
-        duration: 10,
+        duration: 8,
         ease: "power1.inOut",
         onComplete: () => {
           setIsIntroAnimating(false);
+          setIntroComplete(true);
+          shouldFollowRocket.current = false; // Arrêter de suivre la fusée après l'intro
           setGameState((prev) => ({ ...prev, currentGame: 1 }));
         },
       });
+      
+      // Animation de la caméra (indépendante de l'animation de la fusée)
       gsap.to(camera.position, {
         x: 70,
         y: 5,
         z: -48,
-        duration: 10,
+        duration: 8,
         ease: "power1.inOut",
-        onUpdate: () => camera.lookAt(rocketRef.current.position),
       });
     }
   }, [isIntroAnimating, camera]);
@@ -82,9 +93,11 @@ export const Scene = ({ gameState, setGameState, handleFinalContinue, rocketRef,
     };
   }, [isMuted]);
 
+  // Activer le suivi de la caméra pour l'animation finale
   useEffect(() => {
     if (startFinalAnimation) {
-      setIsRocketAnimating(true); // Activer le suivi de la caméra
+      setIsRocketAnimating(true);
+      shouldFollowRocket.current = true; // Réactiver le suivi pour l'animation finale
     }
   }, [startFinalAnimation]);
 
@@ -114,15 +127,27 @@ export const Scene = ({ gameState, setGameState, handleFinalContinue, rocketRef,
     }
   };
 
+  // Gestion de la caméra dans le cycle de rendu
   useFrame(() => {
-    if ((isRocketAnimating || isIntroAnimating) && rocketRef.current) {
-      const targetCameraPosition = {
-        x: rocketRef.current.position.x + 50,
-        y: rocketRef.current.position.y + 30,
-        z: rocketRef.current.position.z + 50,
-      };
-      camera.position.lerp(targetCameraPosition, 0.1);
-      camera.lookAt(rocketRef.current.position);
+    if (rocketRef.current) {
+      // Condition de suivi modifiée pour ne s'activer que pendant l'animation d'intro
+      // ou l'animation finale, mais pas pendant le gameplay normal
+      if (shouldFollowRocket.current && ((isIntroAnimating || isRocketAnimating))) {
+        // Pour l'animation d'intro, on veut que la caméra regarde toujours la fusée
+        if (isIntroAnimating) {
+          camera.lookAt(rocketRef.current.position);
+        }
+        // Pour l'animation finale, on veut suivre la fusée avec la caméra
+        else if (isRocketAnimating) {
+          const targetCameraPosition = {
+            x: rocketRef.current.position.x + 50,
+            y: rocketRef.current.position.y + 30,
+            z: rocketRef.current.position.z + 50,
+          };
+          camera.position.lerp(targetCameraPosition, 0.05);
+          camera.lookAt(rocketRef.current.position);
+        }
+      }
     }
   });
 

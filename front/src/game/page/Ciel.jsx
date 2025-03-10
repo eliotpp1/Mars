@@ -1,12 +1,13 @@
 import { Canvas } from "@react-three/fiber";
-import { Scene } from "./../scenes/CielScene";
+import { Scene } from "../scenes/CielScene";
 import { useGLTF } from "@react-three/drei";
 import { useState, useEffect, useRef } from "react";
 import { useSound } from "../../context/SoundContext";
+import { useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
 import API_URL from "../../constants/api";
 
-const Atmosphere = () => {
+const Ciel = () => {
   const [gameState, setGameState] = useState({
     currentGame: 0,
     game1Completed: false,
@@ -31,11 +32,13 @@ const Atmosphere = () => {
     quiz1Correct: false,
     quiz2Correct: false,
   });
+  const navigate = useNavigate();
 
   const pathCanvasRef = useRef();
   const pathInitializedRef = useRef(false);
   const hasPlayedRef = useRef(false);
   const [startFinalAnimation, setStartFinalAnimation] = useState(false); // Nouvel état pour déclencher l’animation
+  const [showInstructions, setShowInstructions] = useState(false);
 
   const { isMuted } = useSound();
   const winSound = new Audio("/assets/sounds/correct.mp3");
@@ -57,6 +60,16 @@ const Atmosphere = () => {
       planeSound.removeEventListener("ended", () => {});
     };
   }, []);
+
+  useEffect(() => {
+    if (gameState.currentGame === 0) {
+      const timer = setTimeout(() => {
+        setShowInstructions(true);
+      }, 7000);
+
+      return () => clearTimeout(timer); // Nettoyer le timer si le composant est démonté
+    }
+  }, [gameState.currentGame]);
 
   useEffect(() => {
     const fetchQuestion = async () => {
@@ -179,7 +192,7 @@ const Atmosphere = () => {
         ease: "power1.in",
         onUpdate: () => console.log("Position Y:", rocket.position.y),
         onComplete: () => {
-          window.location.href = "/";
+          navigate("/scene3");
         },
       });
     } else if (hasPlayedRef.current) {
@@ -382,11 +395,14 @@ const Atmosphere = () => {
         !gameState.showPathGame &&
         !gameState.showQuiz && (
           <div className="instructions">
-            {gameState.currentGame === 0 && (
+            {showInstructions && gameState.currentGame === 0 && (
               <p>Oups, on dirait que la fusée a un problème !</p>
             )}
             {gameState.currentGame === 1 && !gameState.game1Completed && (
-              <p>Il va falloir finir les minix jeux- pour redémarrer. Pour commencer, trouver l'objet qui est à sa place dans ce décor</p>
+              <p>
+                Il va falloir finir les minix jeux- pour redémarrer. Pour
+                commencer, trouver l'objet qui est à sa place dans ce décor
+              </p>
             )}
             {gameState.currentGame === 2 && !gameState.game2Completed && (
               <p>
@@ -473,18 +489,14 @@ const Atmosphere = () => {
 
       {gameState.showPathGame && (
         <div className="path-game">
-          <canvas
-            ref={pathCanvasRef}
-            width={500}
-            height={300}
-          />
+          <canvas ref={pathCanvasRef} width={500} height={300} />
         </div>
       )}
     </div>
   );
 };
 
-export default Atmosphere;
+export default Ciel;
 
 useGLTF.preload("/assets/models/vehicles/rocket.glb");
 useGLTF.preload("/assets/models/vehicles/sun.glb");

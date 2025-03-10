@@ -361,13 +361,16 @@ form {
   top: 10px; /* Position en haut de l’écran */
   left: 50%;
   transform: translateX(-50%);
-  padding: 10px;
   color:black;
   font-family: "Orbitron", sans-serif;
   text-align: center;
   z-index: 1000;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.8);
+}
+.instructions p {
+  margin: 0;
+  padding: 10px 20px;
 }
 
 /* Styles pour le mini-jeu */
