@@ -192,7 +192,7 @@ const Ciel = () => {
         ease: "power1.in",
         onUpdate: () => console.log("Position Y:", rocket.position.y),
         onComplete: () => {
-          navigate("/scene3");
+          navigate("/game");
         },
       });
     } else if (hasPlayedRef.current) {

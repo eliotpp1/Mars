@@ -118,7 +118,7 @@ export const Scene = () => {
 
       {showDialogue && (
         <GameDialogue
-          message="Attention ! La fusée a un problème et doit être réparée avant de pouvoir repartir. Vous devez résoudre les problèmes de pression et de température pour assurer un lancement sécurisé."
+          message="Attention ! La fusée a du hurté un objet. Vous devez résoudre les problèmes de pression et de température pour assurer un lancement sécurisé."
           onClose={closeDialogue}
         />
       )}

@@ -4,6 +4,7 @@ import { Stars } from "../../components/Stars";
 import { useState, useEffect, useRef } from "react";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
+import { useNavigate } from "react-router-dom"; 
 
 // 🚀 Composant de la fusée
 const Rocket = ({ position }, ref) => {
@@ -62,10 +63,10 @@ const RocketGame = () => {
   const [gameOver, setGameOver] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const [gameStarted, setGameStarted] = useState(false);
-
+  const navigate = useNavigate();
   const rocketRef = useRef();
-  const frameCountRef = useRef(0);
 
+  const [successMessage, setSuccessMessage] = useState(false);
   // Utiliser un objet pour stocker les références des astéroïdes par ID
   const asteroidRefs = useRef({});
 
@@ -84,7 +85,17 @@ const RocketGame = () => {
 
     return false;
   };
+  useEffect(() => {
+    if (gameStarted && !gameOver) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(true); // Afficher le message de réussite
+        setAsteroids([]); 
+        setTimeout(() => navigate("/scene3"), 3000); // Redirection après 2s
+      }, 15000);
 
+      return () => clearTimeout(timer); // Nettoyage au démontage ou si gameOver devient vrai
+    }
+  }, [gameStarted, gameOver, navigate]);
   // Déplacement de la fusée
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -162,20 +173,22 @@ const RocketGame = () => {
   };
 
   return (
-    
-    <div style={{ width: "100vw", height: "100vh", backgroundColor: "black" }}>
+    <div style={{ width: "100vw", height: "100vh" }}>
       {!gameStarted && (
         <h2 style={{ color: "white", textAlign: "center", fontSize: "2em", position: "absolute", top: "40%", left: "50%", transform: "translate(-50%, -50%)" }}>
-          Eviter les astéroïdes {countdown}...
+          Évitez les astéroïdes {countdown}...
         </h2>
       )}
-
-
-
+  
+      {successMessage && (
+        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", textAlign: "center", zIndex: 10 }}>
+          <h2 style={{ color: "lime", fontSize: "2em" }}>Bravo ! Direction la Lune</h2>
+        </div>
+      )}
+  
       {gameOver && (
         <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", textAlign: "center", zIndex: 10 }}>
           <h2 style={{ color: "red", fontSize: "2em" }}>Game Over !</h2>
-
           <button
             onClick={restartGame}
             style={{
@@ -192,8 +205,12 @@ const RocketGame = () => {
           </button>
         </div>
       )}
-
+  
       <Canvas camera={{ position: [0, 0, 5] }}>
+        {/* Fond étoilé */}
+        <color attach="background" args={["#000020"]} />
+        <Stars />
+  
         <ambientLight intensity={0.8} />
         <pointLight position={[10, 10, 10]} />
         <ForwardedRocket position={rocketPosition} ref={rocketRef} />
@@ -213,6 +230,7 @@ const RocketGame = () => {
       </Canvas>
     </div>
   );
-};
+};  
 
 export default RocketGame;
+
