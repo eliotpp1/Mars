@@ -57,6 +57,7 @@ export const Scene = ({
   };
 
   // Animation initiale (atterrissage)
+  // Animation initiale (atterrissage)
   useEffect(() => {
     if (
       step === 0 &&
@@ -65,7 +66,7 @@ export const Scene = ({
       hasStartedLanding
     ) {
       rocketRef.current.visible = true;
-      rocketRef.current.position.set(0, 200, 100);
+      rocketRef.current.position.set(15, 200, 35); // Position initiale avec x à 15
       rocketRef.current.rotation.set(-Math.PI / 8, 0, 0);
       marsRef.current.position.set(500, 200, -1000);
 
@@ -73,11 +74,11 @@ export const Scene = ({
         .timeline({ onComplete: onLandingComplete })
         .fromTo(
           cameraRef.current.position,
-          { x: 0, y: 50, z: 150 },
+          { x: 15, y: 50, z: 85 }, // Caméra alignée avec l'axe x de la fusée
           {
-            x: 0,
+            x: 15, // Garde la caméra centrée sur l'axe x de la fusée
             y: 150,
-            z: 50,
+            z: 85,
             duration: 5,
             ease: "sine.inOut",
             onUpdate: () =>
@@ -86,7 +87,7 @@ export const Scene = ({
         )
         .to(
           rocketRef.current.position,
-          { x: 0, y: 50, z: 6, duration: 5, ease: "sine.inOut" },
+          { x: 15, y: 50, z: 35, duration: 5, ease: "sine.inOut" },
           0
         )
         .to(
@@ -95,24 +96,25 @@ export const Scene = ({
           "-=3"
         )
         .to(rocketRef.current.position, {
-          y: 15,
-          duration: 4.483,
+          x: 15, // Maintient x à 15
+          y: 6.5,
+          z: 35,
+          duration: 5,
           ease: "power2.out",
-        })
-        .to(rocketRef.current.position, {
-          y: 14.8,
-          duration: 0.5,
-          yoyo: true,
-          repeat: 1,
-          ease: "power1.inOut",
+          onUpdate: () => {
+            // La caméra reste alignée sur l'axe x de la fusée
+            cameraRef.current.position.x = 15;
+            cameraRef.current.position.y = rocketRef.current.position.y + 30;
+            cameraRef.current.lookAt(rocketRef.current.position);
+          },
         })
         .to(cameraRef.current.position, {
-          x: 0,
-          y: 100,
-          z: 100,
+          x: 15, // Maintient l'alignement en x
+          y: 50,
+          z: 85,
           duration: 1,
           ease: "sine.inOut",
-          onUpdate: () => cameraRef.current.lookAt(0, 5, 0),
+          onUpdate: () => cameraRef.current.lookAt(15, 6.5, 35), // Regarde vers la position finale centrée de la fusée
         });
     }
     if (rocketRef.current && !hasStartedLanding) {
@@ -334,8 +336,8 @@ export const Scene = ({
       />
       <SceneObject
         modelPath={vehicle || "/assets/models/vehicles/rocket.glb"}
-        position={[-500, 25, 6]}
-        scale={100}
+        position={[-500, 15, 6]}
+        scale={50}
         onClick={() => launchRocket()}
         meshRef={rocketRef}
         rotation={[0, 0, 0]}
