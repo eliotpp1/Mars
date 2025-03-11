@@ -10,7 +10,7 @@ import Terre from "./game/page/Terre";
 import Ciel from "./game/page/ciel";
 import Scene3 from "./game/page/Space";
 import Lune from "./game/page/Lune";
-import { Mars } from "./game/page/Mars";
+import  Mars  from "./game/page/Mars";
 import Vehicles from "./components/Vehicles";
 import Shop from "./components/Shop";
 import EndGame from "./components/EndGame";
