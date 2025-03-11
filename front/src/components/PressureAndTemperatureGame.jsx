@@ -72,7 +72,7 @@ const PressureAndTemperatureGame = ({ onWin, onClose }) => {
             {isCorrect ? (
               <button className="success-btn" onClick={onWin}>✔ Réparation terminée</button>
             ) : (
-              <button className="retry-btn" disabled></button>
+              <button className="retry-btn" disabled>❌ Réessayez</button>
             )}
           </div>
         </div>
