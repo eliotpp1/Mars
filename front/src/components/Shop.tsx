@@ -10,7 +10,7 @@ const UNLOCKED_VEHICLES_KEY = "unlockedVehicles";
 const Shop = () => {
   const [vehicles, setVehicles] = useState([]);
   const [mars, setMars] = useState(() => {
-    return parseInt(localStorage.getItem(CREDITS_KEY), 10) || 100;
+    return parseInt(localStorage.getItem(CREDITS_KEY), 10) || 0;
   });
   const [unlockedVehicles, setUnlockedVehicles] = useState(() => {
     const storedVehicles = JSON.parse(
