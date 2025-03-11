@@ -75,9 +75,14 @@ export const Scene = () => {
   return (
     <>
       <color attach="background" args={["#000020"]} />
-      <Stars />
 
       <CameraSetup cameraPosition={cameraPosition} cameraTarget={[0, 2, 0]} />
+
+      <SceneObject
+        modelPath="/assets/models/lune/decor.glb"
+        position={[0, 0, 0]}
+        scale={100}
+      />
 
       <SceneObject
         modelPath="/assets/models/vehicles/rocket.glb"
