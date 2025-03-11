@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { Stars } from "../../components/Stars";
-import { AnimatedFusee } from "../../components/AnimatedFusee";
+import { SceneObject } from "../../components/SceneObject";
 import { CameraSetup } from "../../components/CameraSetup";
 import { Line, Text, Html } from "@react-three/drei";
 import SimonSays from "../../components/SimonSays";
@@ -19,7 +19,6 @@ export const Scene = () => {
   const [showDialogue, setShowDialogue] = useState(true); // État pour contrôler l'affichage du dialogue
   const [isRocketRepaired, setIsRocketRepaired] = useState(false); // État pour suivre si la fusée est réparée
   const [vehicleName, setVehicleName] = useState("");
-
   useEffect(() => {
     const fetchVehicle = async () => {
       let id = parseInt(localStorage.getItem("selectedVehicle")) + 1;
@@ -30,7 +29,6 @@ export const Scene = () => {
     };
     fetchVehicle();
   }, []);
-
   const handleTextClick = (lineNumber) => {
     setCurrentLine(lineNumber);
     if (lineNumber === 1) {
@@ -48,25 +46,31 @@ export const Scene = () => {
     }
     setShowGame(false);
     setShowPressureGame(false);
-  };
 
-  useEffect(() => {
-    // Vérifie si toutes les réparations sont effectuées
+    // Vérifier si les deux lignes sont réussies
     if (line1Success && line2Success) {
       setIsRocketRepaired(true);
     }
-  }, [line1Success, line2Success]);
+  };
 
   const closeDialogue = () => {
     setShowDialogue(false);
   };
 
   const handleRocketClick = () => {
+    // Vérifiez que les deux lignes ont été réparées avant de permettre le décollage
     if (isRocketRepaired) {
       alert(`La ${vehicleName} décolle ! 🚀`);
-      // Ajoutez ici la logique pour le lancement
+      // Ajoutez ici la logique pour faire décoller la fusée
     }
   };
+
+  useEffect(() => {
+    // Vérifie dès que les lignes sont toutes réussies si la fusée peut être réparée
+    if (line1Success && line2Success) {
+      setIsRocketRepaired(true);
+    }
+  }, [line1Success, line2Success]);
 
   return (
     <>
@@ -75,12 +79,11 @@ export const Scene = () => {
 
       <CameraSetup cameraPosition={cameraPosition} cameraTarget={[0, 2, 0]} />
 
-      <AnimatedFusee
+      <SceneObject
         modelPath="/assets/models/vehicles/rocket.glb"
         position={[0, 2, 0]}
         scale={10}
-        onClick={handleRocketClick}
-        isRocketRepaired={isRocketRepaired} // Animation du décollage quand réparée
+        onClick={handleRocketClick} // Ajoutez l'événement onClick pour la fusée
       />
 
       {/* Ligne 1 */}
@@ -129,7 +132,7 @@ export const Scene = () => {
       <pointLight position={[10, 10, 10]} intensity={1.5} />
       <directionalLight position={[-5, 5, 5]} intensity={1} />
 
-      {showDialogue && !isRocketRepaired && (
+      {showDialogue && (
         <GameDialogue
           message={`Attention ! La ${vehicleName} a un problème et doit être réparée avant de pouvoir repartir. Vous devez résoudre les problèmes de pression et de température pour assurer un lancement sécurisé.`}
           onClose={closeDialogue}
