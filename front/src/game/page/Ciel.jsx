@@ -6,6 +6,8 @@ import { useSound } from "../../context/SoundContext";
 import { useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
 import API_URL from "../../constants/api";
+import SpaceProgressBar from "../../components/SpaceProgressBar";
+import { useProgress } from "../../context/ProgessContext";
 
 const Ciel = () => {
   const [gameState, setGameState] = useState({
@@ -24,6 +26,7 @@ const Ciel = () => {
 
   const [quiz1Data, setQuiz1Data] = useState(null);
   const [quiz2Data, setQuiz2Data] = useState(null);
+  const [vehicleName, setVehicleName] = useState(null);
   const [selectedAnswers, setSelectedAnswers] = useState({
     quiz1: null,
     quiz2: null,
@@ -41,6 +44,7 @@ const Ciel = () => {
   const [showInstructions, setShowInstructions] = useState(false);
 
   const { isMuted } = useSound();
+  const { currentStep } = useProgress();
   const winSound = new Audio("/assets/sounds/correct.mp3");
   const planeSound = new Audio("/assets/sounds/takeoff.mp3");
 
@@ -87,6 +91,14 @@ const Ciel = () => {
       }
     };
 
+    const fetchVehicle = async () => {
+      let id = parseInt(localStorage.getItem("selectedVehicle")) + 1;
+      const response = await fetch(`${API_URL}/vehicles/${id}`);
+      const data = await response.json();
+      console.log(data);
+      setVehicleName(data.name);
+    };
+
     const loadQuestions = async () => {
       const firstQuestion = await fetchQuestion();
       if (firstQuestion) {
@@ -100,6 +112,7 @@ const Ciel = () => {
     };
 
     loadQuestions();
+    fetchVehicle();
   }, []);
 
   const handleClosePopup = () => {
@@ -390,13 +403,17 @@ const Ciel = () => {
           startFinalAnimation={startFinalAnimation} // Nouvelle prop
         />
       </Canvas>
+      {/* SpaceProgressBar dans le DOM, hors du Canvas */}
+      <div style={{ position: "absolute", zIndex: 100 }}>
+        <SpaceProgressBar currentStep={currentStep} totalSteps={5} />
+      </div>
 
       {!gameState.showPopup &&
         !gameState.showPathGame &&
         !gameState.showQuiz && (
           <div className="instructions">
             {showInstructions && gameState.currentGame === 0 && (
-              <p>Oups, on dirait que la fusée a un problème !</p>
+              <p>Oups, on dirait que la {vehicleName} a un problème !</p>
             )}
             {gameState.currentGame === 1 && !gameState.game1Completed && (
               <p>

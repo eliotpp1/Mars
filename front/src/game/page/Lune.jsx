@@ -4,6 +4,8 @@ import { useGLTF } from "@react-three/drei";
 import API_URL from "../../constants/api";
 import { useState, useEffect } from "react";
 import { useSound } from "../../context/SoundContext";
+import SpaceProgressBar from "../../components/SpaceProgressBar";
+import { useProgress } from "../../context/ProgessContext";
 
 const Lune = () => {
   const [step, setStep] = useState(0);
@@ -20,6 +22,8 @@ const Lune = () => {
   const [asteroidGauge, setAsteroidGauge] = useState(0);
   const maxGauge = 100;
   const [lastClickTime, setLastClickTime] = useState(0);
+
+  const { currentStep } = useProgress();
 
   const { isMuted } = useSound();
 
@@ -322,6 +326,10 @@ const Lune = () => {
           hasStartedLanding={hasStartedLanding}
         />
       </Canvas>
+      {/* SpaceProgressBar dans le DOM, hors du Canvas */}
+      <div style={{ position: "absolute", zIndex: 100 }}>
+        <SpaceProgressBar currentStep={currentStep} totalSteps={5} />
+      </div>
     </div>
   );
 };

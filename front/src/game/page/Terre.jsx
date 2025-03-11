@@ -4,6 +4,8 @@ import { useGLTF } from "@react-three/drei";
 import { useSound } from "../../context/SoundContext";
 import { useState, useEffect } from "react";
 import API_URL from "../../constants/api";
+import SpaceProgressBar from "../../components/SpaceProgressBar";
+import { useProgress } from "../../context/ProgessContext";
 
 const Terre = () => {
   const [birdFound, setBirdFound] = useState(false);
@@ -17,6 +19,10 @@ const Terre = () => {
   const [quiz2Data, setQuiz2Data] = useState(null);
   const [errorCount, setErrorCount] = useState(0);
   const [message, setMessage] = useState("");
+  const [vehicleName, setVehicleName] = useState("");
+
+  const { currentStep } = useProgress();
+
   const { isMuted } = useSound();
 
   const errorSound = new Audio("/assets/sounds/error.mp3");
@@ -57,7 +63,16 @@ const Terre = () => {
       }
     };
 
+    const fetchVehicle = async () => {
+      let id = parseInt(localStorage.getItem("selectedVehicle")) + 1;
+      const response = await fetch(`${API_URL}/vehicles/${id}`);
+      const data = await response.json();
+      console.log(data);
+      setVehicleName(data.name);
+    };
+
     loadQuestions();
+    fetchVehicle();
   }, []);
 
   const isSpellingClose = (input, target) => {
@@ -306,7 +321,7 @@ const Terre = () => {
             fontFamily: "Orbitron, sans-serif",
           }}
         >
-          Clique sur la fusée pour continuer !
+          Clique sur la {vehicleName} pour continuer !
         </div>
       )}
 
@@ -321,9 +336,12 @@ const Terre = () => {
           q1Found={q1Found}
           q2Found={q2Found}
           animationComplete={animationComplete}
-
         />
       </Canvas>
+      {/* SpaceProgressBar dans le DOM, hors du Canvas */}
+      <div style={{ position: "absolute", zIndex: 100 }}>
+        <SpaceProgressBar currentStep={currentStep} totalSteps={5} />
+      </div>
     </div>
   );
 };

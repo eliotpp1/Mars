@@ -337,7 +337,7 @@ export const Scene = ({
       <SceneObject
         modelPath={vehicle || "/assets/models/vehicles/rocket.glb"}
         position={[-500, 15, 6]}
-        scale={50}
+        scale={55}
         onClick={() => launchRocket()}
         meshRef={rocketRef}
         rotation={[0, 0, 0]}
@@ -443,15 +443,15 @@ export const Scene = ({
             <>
               <SceneObject
                 modelPath="/assets/models/lune/asteroid.glb"
-                position={[-150, 100, -200]}
-                scale={1.5}
+                position={[-135, 175, -150]}
+                scale={1.35}
                 onClick={() => handleThreatClick("asteroid")}
                 meshRef={asteroidRef}
                 cursor="pointer"
               />
               <SceneObject
                 modelPath="/assets/models/lune/toaster.glb"
-                position={[0, 100, -200]}
+                position={[0, 100, -150]}
                 scale={100}
                 onClick={() => handleThreatClick("toaster")}
                 meshRef={toasterRef}
@@ -459,7 +459,7 @@ export const Scene = ({
               />
               <SceneObject
                 modelPath="/assets/models/lune/helmet.glb"
-                position={[150, 100, -200]}
+                position={[135, 100, -150]}
                 scale={4}
                 onClick={() => handleThreatClick("helmet")}
                 meshRef={helmetRef}

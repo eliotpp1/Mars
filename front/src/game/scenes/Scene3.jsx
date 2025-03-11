@@ -18,7 +18,17 @@ export const Scene = () => {
   const [currentLine, setCurrentLine] = useState(null);
   const [showDialogue, setShowDialogue] = useState(true); // État pour contrôler l'affichage du dialogue
   const [isRocketRepaired, setIsRocketRepaired] = useState(false); // État pour suivre si la fusée est réparée
-
+  const [vehicleName, setVehicleName] = useState("");
+  useEffect(() => {
+    const fetchVehicle = async () => {
+      let id = parseInt(localStorage.getItem("selectedVehicle")) + 1;
+      const response = await fetch(`${API_URL}/vehicles/${id}`);
+      const data = await response.json();
+      console.log(data);
+      setVehicleName(data.name);
+    };
+    fetchVehicle();
+  }, []);
   const handleTextClick = (lineNumber) => {
     setCurrentLine(lineNumber);
     if (lineNumber === 1) {
@@ -50,7 +60,7 @@ export const Scene = () => {
   const handleRocketClick = () => {
     // Vérifiez que les deux lignes ont été réparées avant de permettre le décollage
     if (isRocketRepaired) {
-      alert("La fusée décolle ! 🚀");
+      alert(`La ${vehicleName} décolle ! 🚀`);
       // Ajoutez ici la logique pour faire décoller la fusée
     }
   };
@@ -79,7 +89,10 @@ export const Scene = () => {
       {/* Ligne 1 */}
       <Line
         ref={line1Ref}
-        points={[[-10, 4, 0], [0, 4, 0]]}
+        points={[
+          [-10, 4, 0],
+          [0, 4, 0],
+        ]}
         color={line1Success ? "green" : "red"}
         lineWidth={2}
       />
@@ -97,7 +110,10 @@ export const Scene = () => {
       {/* Ligne 2 */}
       <Line
         ref={line2Ref}
-        points={[[10, 0, 0], [0, 0, 0]]}
+        points={[
+          [10, 0, 0],
+          [0, 0, 0],
+        ]}
         color={line2Success ? "green" : "red"}
         lineWidth={2}
       />
@@ -118,21 +134,28 @@ export const Scene = () => {
 
       {showDialogue && (
         <GameDialogue
-          message="Attention ! La fusée a un problème et doit être réparée avant de pouvoir repartir. Vous devez résoudre les problèmes de pression et de température pour assurer un lancement sécurisé."
+          message={`Attention ! La ${vehicleName} a un problème et doit être réparée avant de pouvoir repartir. Vous devez résoudre les problèmes de pression et de température pour assurer un lancement sécurisé.`}
           onClose={closeDialogue}
         />
       )}
 
       {isRocketRepaired && (
-       <GameDialogue
-       message="Félicitations ! La fusée est réparée et prête à décoller ! Cliquez sur la fusée pour la faire décoller."
-       onClose={closeDialogue}
-     />
+        <GameDialogue
+          message={`Félicitations ! La ${vehicleName} est réparée et prête à décoller ! Cliquez sur la fusée pour la faire décoller.`}
+          onClose={closeDialogue}
+        />
       )}
 
       {showGame && (
         <Html position={[0, 2, 5]} center>
-          <div style={{ width: '300px', background: 'white', padding: '20px', borderRadius: '10px' }}>
+          <div
+            style={{
+              width: "300px",
+              background: "white",
+              padding: "20px",
+              borderRadius: "10px",
+            }}
+          >
             <SimonSays onWin={handleGameWin} />
           </div>
         </Html>
@@ -140,7 +163,14 @@ export const Scene = () => {
 
       {showPressureGame && (
         <Html position={[0, 2, 5]} center>
-          <div style={{ width: '300px', background: 'white', padding: '20px', borderRadius: '10px' }}>
+          <div
+            style={{
+              width: "300px",
+              background: "white",
+              padding: "20px",
+              borderRadius: "10px",
+            }}
+          >
             <PressureAndTemperatureGame onWin={handleGameWin} />
           </div>
         </Html>
