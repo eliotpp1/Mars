@@ -17,8 +17,7 @@ export const Scene = ({
   q1Found,
   q2Found,
   setAnimationComplete,
-  animationComplete
-
+  animationComplete,
 }) => {
   const navigate = useNavigate();
   const cameraRef = useRef();
@@ -26,9 +25,9 @@ export const Scene = ({
   const humanRef = useRef();
   const rocketRef = useRef();
   const monkeyRef = useRef();
+  const frogRef = useRef();
   const { isMuted } = useSound();
 
-  const frogRef = useRef();
   const [launched, setLaunched] = useState(false);
   const [vehicle, setVehicle] = useState(null);
   const [isWalking, setIsWalking] = useState(false);
@@ -58,6 +57,7 @@ export const Scene = ({
       ambianceSound.pause();
     };
   }, [isMuted]);
+
   const fetchVehicle = async () => {
     let id = parseInt(localStorage.getItem("selectedVehicle")) + 1;
     const response = await fetch(`${API_URL}/vehicles/${id}`);
@@ -131,160 +131,159 @@ export const Scene = ({
 
   const handleBirdClick = () => {
     if (!birdFound) {
-    clickSound.play();
-    setBirdFound(true);
-    setIsWalking(true);
+      clickSound.play();
+      setBirdFound(true);
+      setIsWalking(true);
 
-    gsap.to(humanRef.current.position, {
-      x: 35,
-      duration: 3,
-      ease: "power1.inOut",
-      onComplete: () => {
-        setIsWalking(false);
-      },
-    });
-
-    gsap.to(birdRef.current.position, {
-      y: 25,
-      duration: 1.5,
-      ease: "power1.out",
-    });
-
-    gsap.to(birdRef.current.rotation, {
-      y: Math.PI * 2,
-      duration: 2,
-      ease: "power1.inOut",
-    });
-
-    gsap
-      .timeline()
-      .to(cameraRef.current.position, {
-        x: 60,
-        y: 10,
-        z: -40,
-        duration: 1,
-        ease: "power2.inOut",
-      })
-      .to(cameraRef.current.position, {
-        x: 50,
-        y: 5,
-        z: -48,
-        duration: 1.5,
-        ease: "power1.out",
-      });
-
-    gsap.to(tempCameraTarget.current, {
-      x: 45,
-      y: 5,
-      z: -48,
-      duration: 2,
-      ease: "power1.inOut",
-      onUpdate: function () {
-        setCameraTarget([
-          tempCameraTarget.current.x,
-          tempCameraTarget.current.y,
-          tempCameraTarget.current.z,
-        ]);
-      },
-    });
-  }
-  };
-
-  const handleMonkeyClick = () => {
-    if (!monkeyFound && birdFound) {
-    clickSound.play();
-    setMonkeyFound(true);
-    setIsWalking(true);
-
-    const mainTimeline = gsap.timeline();
-
-    mainTimeline
-      .to(humanRef.current.position, {
-        x: 15,
-        duration: 2,
-        ease: "power1.inOut",
-      })
-      .to(
-        cameraRef.current.position,
-        {
-          x: 25,
-          duration: 2,
-          ease: "power1.inOut",
-        },
-        "<"
-      )
-      .to(
-        tempCameraTarget.current,
-        {
-          x: 15,
-          duration: 2,
-          ease: "power1.inOut",
-          onUpdate: function () {
-            setCameraTarget([
-              tempCameraTarget.current.x,
-              tempCameraTarget.current.y,
-              tempCameraTarget.current.z,
-            ]);
-          },
-        },
-        "<"
-      )
-      .to(humanRef.current.rotation, {
-        y: 6,
-        duration: 1,
-        ease: "power1.inOut",
-      })
-      .to(
-        cameraRef.current.position,
-        {
-          x: 15,
-          y: 10,
-          z: -60,
-          duration: 1,
-          ease: "power1.inOut",
-        },
-        "<"
-      )
-      .to(
-        tempCameraTarget.current,
-        {
-          z: -25,
-          duration: 1,
-          ease: "power1.inOut",
-          onUpdate: function () {
-            setCameraTarget([
-              tempCameraTarget.current.x,
-              tempCameraTarget.current.y,
-              tempCameraTarget.current.z,
-            ]);
-          },
-        },
-        "<"
-      )
-      .to(humanRef.current.position, {
-        z: -22,
-        duration: 2,
+      gsap.to(humanRef.current.position, {
+        x: 35,
+        duration: 3,
         ease: "power1.inOut",
         onComplete: () => {
           setIsWalking(false);
         },
-      })
-      .to(
-        cameraRef.current.position,
-        {
-          z: -35,
+      });
+
+      gsap.to(birdRef.current.position, {
+        y: 25,
+        duration: 1.5,
+        ease: "power1.out",
+      });
+
+      gsap.to(birdRef.current.rotation, {
+        y: Math.PI * 2,
+        duration: 2,
+        ease: "power1.inOut",
+      });
+
+      gsap
+        .timeline()
+        .to(cameraRef.current.position, {
+          x: 60,
+          y: 10,
+          z: -40,
+          duration: 1,
+          ease: "power2.inOut",
+        })
+        .to(cameraRef.current.position, {
+          x: 50,
           y: 5,
+          z: -48,
+          duration: 1.5,
+          ease: "power1.out",
+        });
+
+      gsap.to(tempCameraTarget.current, {
+        x: 45,
+        y: 5,
+        z: -48,
+        duration: 2,
+        ease: "power1.inOut",
+        onUpdate: function () {
+          setCameraTarget([
+            tempCameraTarget.current.x,
+            tempCameraTarget.current.y,
+            tempCameraTarget.current.z,
+          ]);
+        },
+      });
+    }
+  };
+
+  const handleMonkeyClick = () => {
+    if (!monkeyFound && birdFound) {
+      clickSound.play();
+      setMonkeyFound(true);
+      setIsWalking(true);
+
+      const mainTimeline = gsap.timeline();
+
+      mainTimeline
+        .to(humanRef.current.position, {
+          x: 15,
           duration: 2,
           ease: "power1.inOut",
-        },
-        "<"
-      );
+        })
+        .to(
+          cameraRef.current.position,
+          {
+            x: 25,
+            duration: 2,
+            ease: "power1.inOut",
+          },
+          "<"
+        )
+        .to(
+          tempCameraTarget.current,
+          {
+            x: 15,
+            duration: 2,
+            ease: "power1.inOut",
+            onUpdate: function () {
+              setCameraTarget([
+                tempCameraTarget.current.x,
+                tempCameraTarget.current.y,
+                tempCameraTarget.current.z,
+              ]);
+            },
+          },
+          "<"
+        )
+        .to(humanRef.current.rotation, {
+          y: 6,
+          duration: 1,
+          ease: "power1.inOut",
+        })
+        .to(
+          cameraRef.current.position,
+          {
+            x: 15,
+            y: 10,
+            z: -60,
+            duration: 1,
+            ease: "power1.inOut",
+          },
+          "<"
+        )
+        .to(
+          tempCameraTarget.current,
+          {
+            z: -25,
+            duration: 1,
+            ease: "power1.inOut",
+            onUpdate: function () {
+              setCameraTarget([
+                tempCameraTarget.current.x,
+                tempCameraTarget.current.y,
+                tempCameraTarget.current.z,
+              ]);
+            },
+          },
+          "<"
+        )
+        .to(humanRef.current.position, {
+          z: -22,
+          duration: 2,
+          ease: "power1.inOut",
+          onComplete: () => {
+            setIsWalking(false);
+          },
+        })
+        .to(
+          cameraRef.current.position,
+          {
+            z: -35,
+            y: 5,
+            duration: 2,
+            ease: "power1.inOut",
+          },
+          "<"
+        );
     }
   };
 
   const launchRocket = () => {
-    if (!launched && q1Found && q2Found && animationComplete ) {
-      // La fusée ne se lance que si les deux QCM sont réussis
+    if (!launched && q1Found && q2Found && animationComplete) {
       takeOffSound.play();
       setLaunched(true);
       gsap.to(rocketRef.current.position, {
@@ -302,13 +301,11 @@ export const Scene = ({
     <>
       <color attach="background" args={["#000020"]} />
       <Stars />
-
       <CameraSetup
         cameraRef={cameraRef}
         cameraPosition={[75, 5, -48]}
         cameraTarget={cameraTarget}
       />
-
       <SceneObject
         modelPath="/assets/models/terre/terre.glb"
         position={[18, -2, -4]}
@@ -323,7 +320,6 @@ export const Scene = ({
           isWalking={isWalking}
         />
       )}
-
       <SceneObject
         modelPath="/assets/models/terre/bird.glb"
         position={[97, 20, -61]}
@@ -332,21 +328,18 @@ export const Scene = ({
         cursor="pointer"
         meshRef={birdRef}
       />
-
       <SceneObject
         modelPath="/assets/models/terre/snake.glb"
         position={[65, 0.3, -35]}
         rotation={[0, 3, 0]}
         scale={3}
       />
-
       <SceneObject
         modelPath="/assets/models/terre/tiger.glb"
         position={[50, -2, -55]}
         rotation={[0, 1.4, 0]}
         scale={1.3}
       />
-
       <SceneObject
         modelPath="/assets/models/terre/singe.glb"
         position={[38, -1.7, -22]}
@@ -356,7 +349,6 @@ export const Scene = ({
         cursor="pointer"
         meshRef={monkeyRef}
       />
-
       <SceneObject
         modelPath="/assets/models/terre/frog.glb"
         position={[-50.5, 31.9, 25]}
@@ -364,7 +356,6 @@ export const Scene = ({
         scale={10}
         ref={frogRef}
       />
-
       <SceneObject
         modelPath={vehicle || "/assets/models/vehicles/rocket.glb"}
         position={[0, 2, 0]}
@@ -372,10 +363,11 @@ export const Scene = ({
         onClick={launchRocket}
         meshRef={rocketRef}
       />
-
       <ambientLight intensity={0.7} />
       <pointLight position={[10, 10, 10]} intensity={1.5} />
       <directionalLight position={[-5, 5, 5]} intensity={1} />
     </>
   );
 };
+
+export default Scene;
