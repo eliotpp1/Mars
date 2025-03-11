@@ -39,6 +39,186 @@ h1 {
   border-radius: 10px;
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
 }
+/* 🚀 Conteneur des réglages Pression & Température */
+.game-container-Pressure {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  background: rgba(20, 20, 20, 0.95);
+  padding: 25px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* ❌ Bouton de fermeture */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.close-btn:hover {
+  transform: scale(1.2);
+  color: #ff5722;
+}
+
+/* 🛰️ Titre */
+.game-container-Pressure h2 {
+  font-size: 1.6rem;
+  color: #ff9800;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  text-shadow: 0 0 10px rgba(255, 152, 0, 0.8);
+}
+
+/* 🎚️ Conteneur des sliders */
+.slider-container {
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+/* 🔧 Labels des sliders */
+.slider-container label {
+  font-size: 1.2rem;
+  color: white;
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* 🎛️ Sliders futuristes */
+.slider {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  appearance: none;
+  transition: all 0.3s ease;
+}
+
+.slider:focus {
+  outline: none;
+}
+
+/* 🎛️ Style du curseur des sliders */
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #ff5722;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(255, 87, 34, 0.8);
+  transition: transform 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #ff5722;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(255, 87, 34, 0.8);
+  transition: transform 0.2s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* 🎭 Feedback dynamique */
+.feedback {
+  margin-top: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.feedback.low {
+  color: #ff0000;
+  text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+}
+
+.feedback.high {
+  color: #ffcc00;
+  text-shadow: 0 0 10px rgba(255, 204, 0, 0.8);
+}
+
+.feedback.correct {
+  color: #00ff00;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+}
+
+/* 🔄 Animation d’apparition */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -55%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* 🌟 Conteneur d'introduction */
+.introduction-container {
+  position: absolute !important;
+  top: 20% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 80vw !important;
+  max-width: 600px !important;
+  padding: 30px !important;
+  background-color: rgba(247, 245, 245, 0.9) !important;
+  border-radius: 15px !important;
+  text-align: center !important;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2) !important;
+  animation: fadeIn 0.5s ease-in-out !important;
+}
+
+/* 🌌 Texte de l'introduction */
+.introduction-container p {
+  font-size: 1.4rem;
+  color: black;
+  line-height: 1.6;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+
+
+/* 🌈 Effet de survol */
+.introduction-container button:hover {
+  background: #ff5722;
+  box-shadow: 0 0 15px rgba(255, 87, 34, 0.8);
+}
+
+/* 🔄 Animation d’apparition */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -55%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
 
 /* 🌟 Cases interactives */
 .cell {
@@ -156,18 +336,20 @@ button:active {
 }
 
 #root > div > div > div:nth-child(2) > div > div {
-  all: unset; /* Réinitialiser tous les styles */
+  all: unset; 
   position: initial;
   width: initial;
   height: initial;
   overflow: initial;
   pointer-events: initial;
+
 }
 #root > div > div > div:nth-child(2) > div > div > div {
-  all: unset !important; /* Réinitialiser tous les styles */
+  all: unset !important; 
   position: initial !important;
   width: initial !important;
   height: initial !important;
   overflow: initial !important;
   pointer-events: initial !important;
+  
 }

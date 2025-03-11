@@ -27,17 +27,16 @@ const PressureAndTemperatureGame = ({ onWin, onClose }) => {
 
   return (
     <Canvas>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[10, 10, 10]} intensity={1.5} />
+      <ambientLight intensity={0.7} />
+      <directionalLight position={[5, 5, 5]} intensity={1.5} />
 
       <Html position={[0, 1, 0]} style={{ transform: "translate(-50%, -50%)" }}>
-        <div className="game-container">
-          {/* Croix de fermeture */}
+        <div className="game-container-Pressure">
           <button className="close-btn" onClick={onClose}>✖</button>
 
-          <h2>Test de pression et de température</h2>
+          <h2>Réglage Pression & Température</h2>
 
-          <div>
+          <div className="slider-container">
             <label>Pression: {pressure} PSI</label>
             <input
               type="range"
@@ -49,11 +48,11 @@ const PressureAndTemperatureGame = ({ onWin, onClose }) => {
               className="slider"
             />
             <div className={`feedback ${pressure < pressureTarget ? "low" : pressure > pressureTarget ? "high" : "correct"}`}>
-              {pressure < pressureTarget ? "Pression trop basse" : pressure > pressureTarget ? "Pression trop haute" : "Pression correcte"}
+              {pressure < pressureTarget ? "Trop basse" : pressure > pressureTarget ? "Trop haute" : "Correcte ✅"}
             </div>
           </div>
 
-          <div>
+          <div className="slider-container">
             <label>Température: {temperature}°C</label>
             <input
               type="range"
@@ -65,15 +64,15 @@ const PressureAndTemperatureGame = ({ onWin, onClose }) => {
               className="slider"
             />
             <div className={`feedback ${temperature < temperatureTarget ? "low" : temperature > temperatureTarget ? "high" : "correct"}`}>
-              {temperature < temperatureTarget ? "Température trop basse" : temperature > temperatureTarget ? "Température trop haute" : "Température correcte"}
+              {temperature < temperatureTarget ? "Trop basse" : temperature > temperatureTarget ? "Trop haute" : "Correcte ✅"}
             </div>
           </div>
 
-          <div style={{ marginTop: "20px" }}>
+          <div className="button-container">
             {isCorrect ? (
-              <button className="success-btn" onClick={onWin}>Réparation Fini !</button>
+              <button className="success-btn" onClick={onWin}>✔ Réparation terminée</button>
             ) : (
-              <button className="retry-btn" disabled>Réessayez</button>
+              <button className="retry-btn" disabled></button>
             )}
           </div>
         </div>
