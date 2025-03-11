@@ -205,7 +205,7 @@ const Ciel = () => {
         ease: "power1.in",
         onUpdate: () => console.log("Position Y:", rocket.position.y),
         onComplete: () => {
-          navigate("/game");
+          navigate("/scene3");
         },
       });
     } else if (hasPlayedRef.current) {
