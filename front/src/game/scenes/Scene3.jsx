@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Importer useNavigate
 import { Stars } from "../../components/Stars";
 import { AnimatedFusee } from "../../components/AnimatedFusee";
 import { CameraSetup } from "../../components/CameraSetup";
@@ -8,6 +9,7 @@ import PressureAndTemperatureGame from "../../components/PressureAndTemperatureG
 import GameDialogue from "../../components/GameDialogue"; // Assurez-vous d'importer correctement le composant
 
 export const Scene = () => {
+  const navigate = useNavigate(); // Initialiser le hook navigate
   const line1Ref = useRef();
   const line2Ref = useRef();
   const [cameraPosition] = useState([0, 5, 20]);
@@ -63,9 +65,13 @@ export const Scene = () => {
 
   const handleRocketClick = () => {
     if (isRocketRepaired) {
-      alert(`La ${vehicleName} décolle ! 🚀`);
-      // Ajoutez ici la logique pour le lancement
+      navigate("/lune"); // Redirection vers /lune
     }
+  };
+
+  const handleNext = () => {
+    // Logique pour avancer après la victoire, par exemple, redirection vers la page suivante
+    navigate("/lune");
   };
 
   return (
@@ -86,10 +92,7 @@ export const Scene = () => {
       {/* Ligne 1 */}
       <Line
         ref={line1Ref}
-        points={[
-          [-10, 4, 0],
-          [0, 4, 0],
-        ]}
+        points={[[-10, 4, 0], [0, 4, 0]]}
         color={line1Success ? "green" : "red"}
         lineWidth={2}
       />
@@ -107,10 +110,7 @@ export const Scene = () => {
       {/* Ligne 2 */}
       <Line
         ref={line2Ref}
-        points={[
-          [10, 0, 0],
-          [0, 0, 0],
-        ]}
+        points={[[10, 0, 0], [0, 0, 0]]}
         color={line2Success ? "green" : "red"}
         lineWidth={2}
       />
@@ -140,6 +140,14 @@ export const Scene = () => {
         <GameDialogue
           message={`Félicitations ! La ${vehicleName} est réparée et prête à décoller ! Cliquez sur la fusée pour la faire décoller.`}
           onClose={closeDialogue}
+        />
+      )}
+
+      {isRocketRepaired && (
+        <GameDialogue
+          message={`Bravo, vous avez réussi ! Cliquez sur "Suivant" pour continuer.`}
+          isVictory={true}
+          onNext={handleNext} // Appelle handleNext lorsqu'on clique sur "Suivant"
         />
       )}
 
