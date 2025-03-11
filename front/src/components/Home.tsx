@@ -27,7 +27,7 @@ const Home = () => {
         localStorage.setItem("mars", "0");
       }
 
-      navigate("/vehicles");
+      navigate("/introduction");
     }
   };
 
@@ -43,7 +43,7 @@ const Home = () => {
           onChange={(e) => setName(e.target.value)}
           required
         />
-        <button type="submit">Commencer</button>
+        <button type="submit">Suivant</button>
       </form>
     </div>
   );

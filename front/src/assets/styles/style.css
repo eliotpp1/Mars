@@ -452,7 +452,19 @@ form {
 .overlay .asteroid-gauge {
   background: inherit; /* ou laissez le inline prendre le contrôle */
 }
-
+.lore-container {
+  max-width: 700px;
+  margin: 0 20px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+.lore-text {
+  font-size: 1.2em;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
 .quiz-answers {
   display: grid;
   /*2x2 grid*/
