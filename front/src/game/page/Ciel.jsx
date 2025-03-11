@@ -69,7 +69,7 @@ const Ciel = () => {
     if (gameState.currentGame === 0) {
       const timer = setTimeout(() => {
         setShowInstructions(true);
-      }, 7000);
+      }, 6000);
 
       return () => clearTimeout(timer); // Nettoyer le timer si le composant est démonté
     }
