@@ -264,11 +264,11 @@ const Vehicles = () => {
     }
 
     // Enregistrer le temps de départ en millisecondes
-    localStorage.setItem("startTime", Date.now());
+    localStorage.setItem("startTime", Date.now().toString()); // Toujours une chaîne
+    localStorage.setItem("scoreCalculated", "false");
 
     setTimeout(() => navigate("/terre"), 1000);
   };
-
   const goToShop = () => {
     if (!isMuted) {
       audioRef.current.currentTime = 0; // Réinitialiser pour éviter le chevauchement
