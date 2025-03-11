@@ -35,7 +35,7 @@ export const Scene = ({
   const [cameraTarget, setCameraTarget] = useState([65, 0, -47]);
 
   const ambianceSound = new Audio("/assets/sounds/soundTerre.mp3");
-  const clickSound = new Audio("/assets/sounds/click.mp3");
+  const clickSound = new Audio("/assets/sounds/correct.mp3");
   const takeOffSound = new Audio("/assets/sounds/takeoff.mp3");
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export const Scene = ({
   useEffect(() => {
     if (!isMuted) {
       ambianceSound.loop = true;
-      ambianceSound.volume = 0.09;
+      ambianceSound.volume = 1;
       ambianceSound.play();
     } else {
       ambianceSound.pause();
@@ -299,8 +299,7 @@ export const Scene = ({
 
   return (
     <>
-      <color attach="background" args={["#000020"]} />
-      <Stars />
+      <color attach="background" args={["#87CEEB"]} />
       <CameraSetup
         cameraRef={cameraRef}
         cameraPosition={[75, 5, -48]}

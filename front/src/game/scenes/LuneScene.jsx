@@ -322,12 +322,16 @@ export const Scene = ({
   return (
     <>
       <color attach="background" args={["#000000"]} />
-      <Stars position={[0, 0, -1000]} radius={1000} count={5000} />
       <CameraSetup
         cameraRef={cameraRef}
         orbitControlsRef={orbitControlsRef}
         cameraPosition={[0, 50, 100]}
         cameraTarget={[0, 5, 0]}
+      />
+      <SceneObject
+        modelPath="/assets/models/lune/decor.glb"
+        position={[0, 0, 0]}
+        scale={500}
       />
       <SceneObject
         modelPath="/assets/models/lune/lune.glb"
