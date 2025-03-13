@@ -136,8 +136,6 @@ export const Scene = () => {
         />
       )}
 
-      
-
       {isRocketRepaired && (
         <GameDialogue
           message={`Bravo, vous avez réussi ! Cliquez sur "Suivant" pour continuer.`}
