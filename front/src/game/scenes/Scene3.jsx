@@ -136,12 +136,7 @@ export const Scene = () => {
         />
       )}
 
-      {isRocketRepaired && (
-        <GameDialogue
-          message={`Félicitations ! La ${vehicleName} est réparée et prête à décoller ! Cliquez sur la fusée pour la faire décoller.`}
-          onClose={closeDialogue}
-        />
-      )}
+      
 
       {isRocketRepaired && (
         <GameDialogue

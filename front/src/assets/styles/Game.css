@@ -25,7 +25,14 @@ h1 {
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
   color: white;
 }
-
+.Simon_message {
+  font-size: 1.4rem;
+  margin: 15px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
+}
 /* 🛰️ Grille du jeu */
 .grid {
   display: grid;
@@ -195,18 +202,14 @@ h1 {
 /* 🌌 Texte de l'introduction */
 .introduction-container p {
   font-size: 1.4rem;
-  color: black;
+  color: white;
   line-height: 1.6;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
 
 
-/* 🌈 Effet de survol */
-.introduction-container button:hover {
-  background: #ff5722;
-  box-shadow: 0 0 15px rgba(255, 87, 34, 0.8);
-}
+
 
 /* 🔄 Animation d’apparition */
 @keyframes fadeIn {
@@ -342,6 +345,7 @@ button:active {
   height: initial;
   overflow: initial;
   pointer-events: initial;
+  background: none !important;
 
 }
 #root > div > div > div:nth-child(2) > div > div > div {
